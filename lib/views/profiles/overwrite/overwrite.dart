@@ -19,6 +19,7 @@ import 'package:reorderable_grid/reorderable_grid.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 
 part 'custom.dart';
+part 'widgets.dart';
 
 class OverwriteView extends ConsumerStatefulWidget {
   final int profileId;
