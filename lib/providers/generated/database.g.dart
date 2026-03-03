@@ -196,6 +196,144 @@ final class AddedRulesFamily extends $Family
   String toString() => r'addedRulesProvider';
 }
 
+@ProviderFor(customRulesCount)
+const customRulesCountProvider = CustomRulesCountFamily._();
+
+final class CustomRulesCountProvider
+    extends $FunctionalProvider<AsyncValue<int>, int, Stream<int>>
+    with $FutureModifier<int>, $StreamProvider<int> {
+  const CustomRulesCountProvider._({
+    required CustomRulesCountFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'customRulesCountProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$customRulesCountHash();
+
+  @override
+  String toString() {
+    return r'customRulesCountProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<int> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<int> create(Ref ref) {
+    final argument = this.argument as int;
+    return customRulesCount(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CustomRulesCountProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$customRulesCountHash() => r'a3ff7941bcbb2696ba48c82b9310d81d7238536f';
+
+final class CustomRulesCountFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<int>, int> {
+  const CustomRulesCountFamily._()
+    : super(
+        retry: null,
+        name: r'customRulesCountProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  CustomRulesCountProvider call(int profileId) =>
+      CustomRulesCountProvider._(argument: profileId, from: this);
+
+  @override
+  String toString() => r'customRulesCountProvider';
+}
+
+@ProviderFor(proxyGroupsCount)
+const proxyGroupsCountProvider = ProxyGroupsCountFamily._();
+
+final class ProxyGroupsCountProvider
+    extends $FunctionalProvider<AsyncValue<int>, int, Stream<int>>
+    with $FutureModifier<int>, $StreamProvider<int> {
+  const ProxyGroupsCountProvider._({
+    required ProxyGroupsCountFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'proxyGroupsCountProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$proxyGroupsCountHash();
+
+  @override
+  String toString() {
+    return r'proxyGroupsCountProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<int> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<int> create(Ref ref) {
+    final argument = this.argument as int;
+    return proxyGroupsCount(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProxyGroupsCountProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$proxyGroupsCountHash() => r'9bf90fc25a9ae3b9ab7aa0784d4e47786f4c4d52';
+
+final class ProxyGroupsCountFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<int>, int> {
+  const ProxyGroupsCountFamily._()
+    : super(
+        retry: null,
+        name: r'proxyGroupsCountProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ProxyGroupsCountProvider call(int profileId) =>
+      ProxyGroupsCountProvider._(argument: profileId, from: this);
+
+  @override
+  String toString() => r'proxyGroupsCountProvider';
+}
+
 @ProviderFor(Profiles)
 const profilesProvider = ProfilesProvider._();
 
@@ -561,7 +699,7 @@ final class ProxyGroupsProvider
   }
 }
 
-String _$proxyGroupsHash() => r'f771e6e80885aa662ee97a7e60984db1ba883c95';
+String _$proxyGroupsHash() => r'b747de5d114e8e6d764befca26e9a8dc81d9d127';
 
 final class ProxyGroupsFamily extends $Family
     with

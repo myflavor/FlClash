@@ -74,6 +74,15 @@ class ProxyGroupsDao extends DatabaseAccessor<Database>
     return stmt.map((item) => item.toProxyGroup());
   }
 
+  Selectable<int> count(int profileId) {
+    final stmt = proxyGroups.select();
+    stmt.where((row) => row.profileId.equals(profileId));
+    stmt.orderBy([
+      (t) => OrderingTerm(expression: t.order, nulls: NullsOrder.last),
+    ]);
+    return stmt.count;
+  }
+
   Future<int> order(
     int profileId, {
     required ProxyGroup proxyGroup,

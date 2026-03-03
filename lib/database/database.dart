@@ -101,12 +101,36 @@ extension TableInfoExt<Tbl extends Table, Row> on TableInfo<Tbl, Row> {
     }
   }
 
+  Selectable<int?> get count {
+    final countExp = countAll();
+    final query = select().addColumns([countExp]);
+    return query.map((row) => row.read(countExp));
+  }
+
   Future<int> remove(Expression<bool> Function(Tbl tbl) filter) async {
     return await (delete()..where(filter)).go();
   }
 
   Future<int> put(Insertable<Row> item) async {
     return await insertOnConflictUpdate(item);
+  }
+}
+
+extension SimpleSelectStatementExt<T extends HasResultSet, D>
+    on SimpleSelectStatement<T, D> {
+  Selectable<int> get count {
+    final countExp = countAll();
+    final query = addColumns([countExp]);
+    return query.map((row) => row.read(countExp)!);
+  }
+}
+
+extension JoinedSelectStatementExt<T extends HasResultSet, D>
+    on JoinedSelectStatement<T, D> {
+  Selectable<int> get count {
+    final countExp = countAll();
+    addColumns([countExp]);
+    return map((row) => row.read(countExp)!);
   }
 }
 

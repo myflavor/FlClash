@@ -33,6 +33,14 @@ class RulesDao extends DatabaseAccessor<Database> with _$RulesDaoMixin {
     return _get(profileId: profileId, scene: RuleScene.custom);
   }
 
+  Selectable<int> profileCustomRulesCount(int profileId) {
+    final query = _getSelectStatement(
+      profileId: profileId,
+      scene: RuleScene.custom,
+    );
+    return query.count;
+  }
+
   Selectable<Rule> allAddedRules(int profileId) {
     final disabledIdsQuery = selectOnly(profileRuleLinks)
       ..addColumns([profileRuleLinks.ruleId])
@@ -186,7 +194,10 @@ class RulesDao extends DatabaseAccessor<Database> with _$RulesDaoMixin {
     );
   }
 
-  Selectable<Rule> _get({int? profileId, RuleScene? scene}) {
+  JoinedSelectStatement<HasResultSet, dynamic> _getSelectStatement({
+    int? profileId,
+    RuleScene? scene,
+  }) {
     final query = select(rules).join([
       innerJoin(profileRuleLinks, profileRuleLinks.ruleId.equalsExp(rules.id)),
     ]);
@@ -200,6 +211,11 @@ class RulesDao extends DatabaseAccessor<Database> with _$RulesDaoMixin {
 
     query.orderBy([OrderingTerm.asc(profileRuleLinks.order)]);
 
+    return query;
+  }
+
+  Selectable<Rule> _get({int? profileId, RuleScene? scene}) {
+    final query = _getSelectStatement(profileId: profileId, scene: scene);
     return query.map((row) {
       return row.readTable(rules).toRule(row.read(profileRuleLinks.order));
     });

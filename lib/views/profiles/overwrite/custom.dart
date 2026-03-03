@@ -15,18 +15,19 @@ class _CustomContent extends ConsumerWidget {
     );
   }
 
+  void _handleToProxyGroupsView(BuildContext context) {
+    BaseNavigator.push(context, _CustomProxyGroupsView(profileId));
+  }
+
+  void _handleToRulesView(BuildContext context) {
+    BaseNavigator.push(context, _CustomRulesView(profileId));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final proxyGroupNum = ref.watch(
-      proxyGroupsProvider(
-        profileId,
-      ).select((state) => state.value?.length ?? -1),
-    );
-    final ruleNum = ref.watch(
-      profileCustomRulesProvider(
-        profileId,
-      ).select((state) => state.value?.length ?? -1),
-    );
+    final proxyGroupNum =
+        ref.watch(proxyGroupsCountProvider(profileId)).value ?? -1;
+    final ruleNum = ref.watch(customRulesCountProvider(profileId)).value ?? -1;
     return SliverMainAxisGroup(
       slivers: [
         SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -39,7 +40,9 @@ class _CustomContent extends ConsumerWidget {
         SliverToBoxAdapter(
           child: _MoreActionButton(
             label: '代理组',
-            onPressed: () {},
+            onPressed: () {
+              _handleToProxyGroupsView(context);
+            },
             trailing: Card.filled(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -62,7 +65,9 @@ class _CustomContent extends ConsumerWidget {
         SliverToBoxAdapter(
           child: _MoreActionButton(
             label: '规则',
-            onPressed: () {},
+            onPressed: () {
+              _handleToRulesView(context);
+            },
             trailing: Card.filled(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -134,81 +139,168 @@ class _CustomContent extends ConsumerWidget {
   }
 }
 
-class _CustomProxyGroups extends ConsumerStatefulWidget {
+class _CustomProxyGroupsView extends ConsumerWidget {
   final int profileId;
 
-  const _CustomProxyGroups(this.profileId);
+  const _CustomProxyGroupsView(this.profileId);
 
-  @override
-  ConsumerState createState() => _CustomProxyGroupsState();
-}
-
-class _CustomProxyGroupsState extends ConsumerState<_CustomProxyGroups> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _handleReorder(int oldIndex, int newIndex) {
-    ref
-        .read(proxyGroupsProvider(widget.profileId).notifier)
-        .order(oldIndex, newIndex);
+  void _handleReorder(WidgetRef ref, int oldIndex, int newIndex) {
+    ref.read(proxyGroupsProvider(profileId).notifier).order(oldIndex, newIndex);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final proxyGroups =
-        ref.watch(proxyGroupsProvider(widget.profileId)).value ?? [];
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverReorderableGrid(
-        onReorder: _handleReorder,
-        itemCount: proxyGroups.length,
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 150,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 16 / 8,
-        ),
-        proxyDecorator: commonProxyDecorator,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final proxyGroups = ref.watch(proxyGroupsProvider(profileId)).value ?? [];
+    return CommonScaffold(
+      title: '代理组',
+      body: ReorderableListView.builder(
+        buildDefaultDragHandles: false,
         itemBuilder: (_, index) {
           final proxyGroup = proxyGroups[index];
-          return ReorderableGridDelayedDragStartListener(
+          return ReorderableDelayedDragStartListener(
             key: ValueKey(proxyGroup),
             index: index,
-            child: CommonCard(
-              radius: 12,
-              type: CommonCardType.filled,
-              padding: EdgeInsets.all(16),
-              onPressed: () {},
-              child: Text(proxyGroup.name),
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+              child: CommonCard(
+                radius: 16,
+                padding: EdgeInsets.all(16),
+                onPressed: () {},
+                child: ListTile(
+                  minTileHeight: 0,
+                  minVerticalPadding: 0,
+                  titleTextStyle: context.textTheme.bodyMedium?.toJetBrainsMono,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 4,
+                  ),
+                  title: Text(proxyGroup.name),
+                  subtitle: Text(proxyGroup.type.name),
+                ),
+              ),
             ),
           );
+        },
+        itemCount: proxyGroups.length,
+        onReorder: (oldIndex, newIndex) {
+          _handleReorder(ref, oldIndex, newIndex);
         },
       ),
     );
   }
 }
 
-class _CustomRules extends ConsumerWidget {
+class _CustomRulesView extends ConsumerStatefulWidget {
   final int profileId;
 
-  const _CustomRules({required this.profileId});
+  const _CustomRulesView(this.profileId);
 
   @override
-  Widget build(context, ref) {
-    final rules = ref.watch(profileCustomRulesProvider(profileId)).value ?? [];
-    return SuperSliverList(
-      extentEstimation: (_, _) => 100,
-      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        final rule = rules[index];
-        return RuleItem(
-          isSelected: false,
-          rule: rule,
-          onSelected: () {},
-          onEdit: (_) {},
-        );
-      }, childCount: rules.length),
+  ConsumerState createState() => __CustomRulesViewState();
+}
+
+class __CustomRulesViewState extends ConsumerState<_CustomRulesView> {
+  final _key = utils.id;
+
+  void _handleReorder(int oldIndex, int newIndex) {
+    ref
+        .read(profileCustomRulesProvider(widget.profileId).notifier)
+        .order(oldIndex, newIndex);
+  }
+
+  void _handleSelected(int ruleId) {
+    ref.read(selectedItemsProvider(_key).notifier).update((selectedRules) {
+      final newSelectedRules = Set<int>.from(selectedRules)
+        ..addOrRemove(ruleId);
+      return newSelectedRules;
+    });
+  }
+
+  void _handleSelectAll() {
+    final ids =
+        ref
+            .read(profileCustomRulesProvider(widget.profileId))
+            .value
+            ?.map((item) => item.id)
+            .toSet() ??
+        {};
+    ref.read(selectedItemsProvider(_key).notifier).update((selected) {
+      return selected.containsAll(ids) ? {} : ids;
+    });
+  }
+
+  Future<void> _handleDelete() async {
+    final res = await globalState.showMessage(
+      title: appLocalizations.tip,
+      message: TextSpan(
+        text: appLocalizations.deleteMultipTip(appLocalizations.rule),
+      ),
+    );
+    if (res != true) {
+      return;
+    }
+    final selectedRules = ref.read(selectedItemsProvider(_key));
+    ref
+        .read(profileCustomRulesProvider(widget.profileId).notifier)
+        .delAll(selectedRules.cast<int>());
+    ref.read(selectedItemsProvider(_key).notifier).value = {};
+  }
+
+  @override
+  Widget build(context) {
+    final rules =
+        ref.watch(profileCustomRulesProvider(widget.profileId)).value ?? [];
+    final selectedRules = ref.watch(selectedItemsProvider(_key));
+    return CommonScaffold(
+      title: appLocalizations.rule,
+      actions: [
+        if (selectedRules.isNotEmpty) ...[
+          CommonMinIconButtonTheme(
+            child: IconButton.filledTonal(
+              onPressed: _handleDelete,
+              icon: Icon(Icons.delete),
+            ),
+          ),
+          SizedBox(width: 2),
+        ],
+        CommonMinFilledButtonTheme(
+          child: selectedRules.isNotEmpty
+              ? FilledButton(
+                  onPressed: _handleSelectAll,
+                  child: Text(appLocalizations.selectAll),
+                )
+              : FilledButton.tonal(
+                  onPressed: () {
+                    // _handleAddOrUpdate();
+                  },
+                  child: Text(appLocalizations.add),
+                ),
+        ),
+        SizedBox(width: 8),
+      ],
+      body: ReorderableListView.builder(
+        buildDefaultDragHandles: false,
+        itemBuilder: (_, index) {
+          final rule = rules[index];
+          return ReorderableDelayedDragStartListener(
+            key: ObjectKey(rule),
+            index: index,
+            child: RuleItem(
+              isEditing: selectedRules.isNotEmpty,
+              isSelected: selectedRules.contains(rule.id),
+              rule: rule,
+              onSelected: () {
+                _handleSelected(rule.id);
+              },
+              onEdit: (rule) {
+                // _handleAddOrUpdate(rule);
+              },
+            ),
+          );
+        },
+        itemCount: rules.length,
+        onReorder: _handleReorder,
+      ),
     );
   }
 }

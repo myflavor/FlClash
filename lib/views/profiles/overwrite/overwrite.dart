@@ -15,8 +15,6 @@ import 'package:fl_clash/views/profiles/preview.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reorderable_grid/reorderable_grid.dart';
-import 'package:super_sliver_list/super_sliver_list.dart';
 
 part 'custom.dart';
 part 'widgets.dart';

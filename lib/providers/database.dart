@@ -23,6 +23,16 @@ Future<List<Rule>> addedRules(Ref ref, int profileId) {
   return database.rulesDao.allAddedRules(profileId).get();
 }
 
+@riverpod
+Stream<int> customRulesCount(Ref ref, int profileId) {
+  return database.rulesDao.profileCustomRulesCount(profileId).watchSingle();
+}
+
+@riverpod
+Stream<int> proxyGroupsCount(Ref ref, int profileId) {
+  return database.proxyGroupsDao.count(profileId).watchSingle();
+}
+
 @Riverpod(keepAlive: true)
 class Profiles extends _$Profiles {
   @override
@@ -306,6 +316,9 @@ class ProxyGroups extends _$ProxyGroups with AsyncNotifierMixin {
   }
 
   void order(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
     final nextItems = List<ProxyGroup>.from(value);
     final item = nextItems.removeAt(oldIndex);
     nextItems.insert(newIndex, item);
