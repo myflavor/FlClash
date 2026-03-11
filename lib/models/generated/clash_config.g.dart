@@ -63,6 +63,18 @@ const _$GroupTypeEnumMap = {
   GroupType.Relay: 'Relay',
 };
 
+_Proxy _$ProxyFromJson(Map<String, dynamic> json) => _Proxy(
+  name: json['name'] as String,
+  type: json['type'] as String,
+  now: json['now'] as String?,
+);
+
+Map<String, dynamic> _$ProxyToJson(_Proxy instance) => <String, dynamic>{
+  'name': instance.name,
+  'type': instance.type,
+  'now': instance.now,
+};
+
 _RuleProvider _$RuleProviderFromJson(Map<String, dynamic> json) =>
     _RuleProvider(name: json['name'] as String);
 
@@ -321,12 +333,24 @@ _ClashConfig _$ClashConfigFromJson(Map<String, dynamic> json) => _ClashConfig(
           .toList() ??
       const [],
   rules: json['rules'] == null ? const [] : _genRule(json['rules'] as List?),
+  proxies:
+      (json['proxies'] as List<dynamic>?)
+          ?.map((e) => Proxy.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  proxyTypeMap:
+      (json['proxyTypeMap'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const {},
 );
 
 Map<String, dynamic> _$ClashConfigToJson(_ClashConfig instance) =>
     <String, dynamic>{
       'proxy-groups': instance.proxyGroups,
       'rules': instance.rules,
+      'proxies': instance.proxies,
+      'proxyTypeMap': instance.proxyTypeMap,
     };
 
 _PatchClashConfig _$PatchClashConfigFromJson(Map<String, dynamic> json) =>

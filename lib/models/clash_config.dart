@@ -129,6 +129,17 @@ abstract class ProxyGroup with _$ProxyGroup {
 }
 
 @freezed
+abstract class Proxy with _$Proxy {
+  const factory Proxy({
+    required String name,
+    required String type,
+    String? now,
+  }) = _Proxy;
+
+  factory Proxy.fromJson(Map<String, Object?> json) => _$ProxyFromJson(json);
+}
+
+@freezed
 abstract class RuleProvider with _$RuleProvider {
   const factory RuleProvider({required String name}) = _RuleProvider;
 
@@ -431,12 +442,14 @@ abstract class ClashConfig with _$ClashConfig {
   const factory ClashConfig({
     @Default([]) @JsonKey(name: 'proxy-groups') List<ProxyGroup> proxyGroups,
     @JsonKey(fromJson: _genRule) @Default([]) List<Rule> rules,
+    @Default([]) List<Proxy> proxies,
     // @JsonKey(name: 'rule-providers', fromJson: _genRuleProviders)
     // @Default([])
     // List<RuleProvider> ruleProvider,
     // @JsonKey(name: 'sub-rules', fromJson: _genSubRules)
     // @Default([])
     // List<SubRule> subRules,
+    @Default({}) Map<String, String> proxyTypeMap,
   }) = _ClashConfig;
 
   factory ClashConfig.fromJson(Map<String, Object?> json) =>

@@ -2498,7 +2498,7 @@ final class ClashConfigProvider
   }
 }
 
-String _$clashConfigHash() => r'3987f6aee1131fe9b3978b914372b04ca2ae773c';
+String _$clashConfigHash() => r'f7da0ec3a29379f6192c1206d2cd7535b45fab5e';
 
 final class ClashConfigFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ClashConfig>, int> {

@@ -23,9 +23,12 @@ class _CustomProxyGroupsView extends ConsumerWidget {
         maxWidth: 400,
       ),
       builder: (context) {
-        return ProxyGroupProvider(
-          proxyGroup: proxyGroup,
-          child: _EditProxyGroupNestedSheet(),
+        return ProfileIdProvider(
+          profileId: profileId,
+          child: ProxyGroupProvider(
+            proxyGroup: proxyGroup,
+            child: _EditProxyGroupNestedSheet(),
+          ),
         );
       },
     );
@@ -254,9 +257,11 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
   }
 
   void _handleToProxiesView() {
-    Navigator.of(
-      context,
-    ).push(PagedSheetRoute(builder: (context) => _EditProxiesView()));
+    Navigator.of(context).push(
+      PagedSheetRoute(
+        builder: (context) => _EditProxiesView(_proxyGroup.proxies ?? []),
+      ),
+    );
   }
 
   void _handleToProvidersView() {}
@@ -547,16 +552,27 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
   }
 }
 
-class _EditProxiesView extends StatefulWidget {
-  const _EditProxiesView();
+class _EditProxiesView extends ConsumerStatefulWidget {
+  final List<String> proxyNames;
+
+  const _EditProxiesView(this.proxyNames);
 
   @override
-  State<_EditProxiesView> createState() => _EditProxiesViewState();
+  ConsumerState<_EditProxiesView> createState() => _EditProxiesViewState();
 }
 
-class _EditProxiesViewState extends State<_EditProxiesView> {
+class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
   @override
   Widget build(BuildContext context) {
+    final profileId = ProfileIdProvider.of(context)!.profileId;
+    final proxyNames = widget.proxyNames;
+    final proxyTypeMap =
+        ref.watch(
+          clashConfigProvider(
+            profileId,
+          ).select((state) => state.value?.proxyTypeMap),
+        ) ??
+        {};
     final isBottomSheet =
         SheetProvider.of(context)?.type == SheetType.bottomSheet;
     return SizedBox(
@@ -567,11 +583,9 @@ class _EditProxiesViewState extends State<_EditProxiesView> {
         title: '选择代理',
         body: CustomScrollView(
           slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
             SliverPadding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 0,
-              ).copyWith(top: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverToBoxAdapter(
                 child: CommonCard(
                   radius: 20,
@@ -584,6 +598,67 @@ class _EditProxiesViewState extends State<_EditProxiesView> {
                 ),
               ),
             ),
+            SliverToBoxAdapter(child: SizedBox(height: 8)),
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: InfoHeader(
+                  info: Info(label: '节点'),
+                  actions: [
+                    CommonMinFilledButtonTheme(
+                      child: FilledButton.tonal(
+                        onPressed: () {},
+                        child: Text('添加'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverReorderableList(
+              itemBuilder: (_, index) {
+                final proxyName = proxyNames[index];
+                return Container(
+                  key: Key(proxyName),
+                  margin: EdgeInsets.symmetric(vertical: 2, horizontal: 16),
+                  color: Colors.transparent,
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Flexible(
+                        child: CommonCard(
+                          radius: 18,
+                          onPressed: () {},
+                          child: ListTile(
+                            leading: CommonMinIconButtonTheme(
+                              child: IconButton.filledTonal(
+                                onPressed: () {},
+                                icon: Icon(Icons.remove, size: 18),
+                                padding: EdgeInsets.zero,
+                              ),
+                            ),
+                            minTileHeight:
+                                32 + globalState.measure.bodyMediumHeight,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                            ),
+                            title: Text(proxyName),
+                            subtitle: Text(proxyTypeMap[proxyName]!),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              itemExtent:
+                  24 +
+                  globalState.measure.bodyMediumHeight +
+                  globalState.measure.bodyLargeHeight,
+              itemCount: proxyNames.length,
+              onReorder: (int oldIndex, int newIndex) {},
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
           ],
         ),
       ),

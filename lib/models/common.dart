@@ -6,6 +6,8 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'clash_config.dart';
+
 part 'generated/common.freezed.dart';
 part 'generated/common.g.dart';
 
@@ -283,17 +285,6 @@ abstract class TrafficShow with _$TrafficShow {
 
 extension TrafficShowExt on TrafficShow {
   String get show => '$value$unit';
-}
-
-@freezed
-abstract class Proxy with _$Proxy {
-  const factory Proxy({
-    required String name,
-    required String type,
-    String? now,
-  }) = _Proxy;
-
-  factory Proxy.fromJson(Map<String, Object?> json) => _$ProxyFromJson(json);
 }
 
 @freezed

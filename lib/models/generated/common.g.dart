@@ -158,18 +158,6 @@ Map<String, dynamic> _$TrafficToJson(_Traffic instance) => <String, dynamic>{
   'down': instance.down,
 };
 
-_Proxy _$ProxyFromJson(Map<String, dynamic> json) => _Proxy(
-  name: json['name'] as String,
-  type: json['type'] as String,
-  now: json['now'] as String?,
-);
-
-Map<String, dynamic> _$ProxyToJson(_Proxy instance) => <String, dynamic>{
-  'name': instance.name,
-  'type': instance.type,
-  'now': instance.now,
-};
-
 _Group _$GroupFromJson(Map<String, dynamic> json) => _Group(
   type: $enumDecode(_$GroupTypeEnumMap, json['type']),
   all:

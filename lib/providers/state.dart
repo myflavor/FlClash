@@ -682,7 +682,14 @@ Future<Script?> script(Ref ref, int? scriptId) async {
 Future<ClashConfig> clashConfig(Ref ref, int profileId) async {
   final configMap = await coreController.getConfig(profileId);
   final clashConfig = ClashConfig.fromJson(configMap);
-  return clashConfig;
+  final Map<String, String> proxyTypeMap = {};
+  for (final proxy in clashConfig.proxies) {
+    proxyTypeMap[proxy.name] = proxy.type;
+  }
+  for (final proxyGroup in clashConfig.proxyGroups) {
+    proxyTypeMap[proxyGroup.name] = proxyGroup.type.value;
+  }
+  return clashConfig.copyWith(proxyTypeMap: proxyTypeMap);
 }
 
 @riverpod
