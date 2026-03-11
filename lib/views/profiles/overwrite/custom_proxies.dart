@@ -38,7 +38,7 @@ class _CustomProxyGroupsView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final proxyGroups = ref.watch(proxyGroupsProvider(profileId)).value ?? [];
     return CommonScaffold(
-      title: '代理组',
+      title: '策略组',
       body: ReorderableListView.builder(
         buildDefaultDragHandles: false,
         padding: EdgeInsets.only(bottom: 16),
@@ -405,7 +405,7 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
                     textAlign: TextAlign.end,
                     decoration: InputDecoration.collapsed(
                       border: NoInputBorder(),
-                      hintText: '输入代理组名称',
+                      hintText: '输入策略组名称',
                     ),
                   ),
                 ),
@@ -547,7 +547,7 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
           ],
         ),
       ),
-      title: '编辑代理组',
+      title: '编辑策略组',
     );
   }
 }
@@ -562,6 +562,15 @@ class _EditProxiesView extends ConsumerStatefulWidget {
 }
 
 class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
+  void _handleToAddProxiesView() {
+    Navigator.of(context).push(
+      PagedSheetRoute(
+        builder: (context) =>
+            _AddProxiesView(addedProxyNames: widget.proxyNames),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileId = ProfileIdProvider.of(context)!.profileId;
@@ -580,7 +589,7 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
           ? appController.viewSize.height * 0.85
           : double.maxFinite,
       child: AdaptiveSheetScaffold(
-        title: '选择代理',
+        title: '编辑代理',
         body: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -607,7 +616,7 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
                   actions: [
                     CommonMinFilledButtonTheme(
                       child: FilledButton.tonal(
-                        onPressed: () {},
+                        onPressed: _handleToAddProxiesView,
                         child: Text('添加'),
                       ),
                     ),
@@ -620,7 +629,7 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
                 final proxyName = proxyNames[index];
                 return Container(
                   key: Key(proxyName),
-                  margin: EdgeInsets.symmetric(vertical: 2, horizontal: 16),
+                  margin: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                   color: Colors.transparent,
                   child: Row(
                     spacing: 8,
@@ -643,7 +652,10 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
                               horizontal: 16,
                             ),
                             title: Text(proxyName),
-                            subtitle: Text(proxyTypeMap[proxyName]!),
+                            subtitle: Text(
+                              proxyTypeMap[proxyName] ??
+                                  proxyName.toLowerCase(),
+                            ),
                           ),
                         ),
                       ),
@@ -659,6 +671,136 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
               onReorder: (int oldIndex, int newIndex) {},
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddProxiesView extends ConsumerWidget {
+  final List<String> addedProxyNames;
+
+  const _AddProxiesView({required this.addedProxyNames});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final isBottomSheet =
+        SheetProvider.of(context)?.type == SheetType.bottomSheet;
+    final profileId = ProfileIdProvider.of(context)!.profileId;
+    final currentGroupName = ProxyGroupProvider.of(context)!.proxyGroup.name;
+    final proxiesAndGroupsMap = ref.watch(
+      clashConfigProvider(profileId).select(
+        (state) =>
+            VM2(state.value?.proxies ?? [], state.value?.proxyGroups ?? []),
+      ),
+    );
+    final allProxies = proxiesAndGroupsMap.a;
+    final allProxyGroups = proxiesAndGroupsMap.b;
+    final proxies = allProxies
+        .where((item) => !addedProxyNames.contains(item.name))
+        .toList();
+    final groups = allProxyGroups
+        .where((item) => currentGroupName != item.name)
+        .toList();
+    return SizedBox(
+      height: isBottomSheet
+          ? appController.viewSize.height * 0.80
+          : double.maxFinite,
+      child: AdaptiveSheetScaffold(
+        title: '添加代理',
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
+            if (groups.isNotEmpty) ...[
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverToBoxAdapter(
+                  child: InfoHeader(info: Info(label: '策略组')),
+                ),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate((_, index) {
+                  final group = groups[index];
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    color: Colors.transparent,
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        Flexible(
+                          child: CommonCard(
+                            radius: 18,
+                            onPressed: () {},
+                            child: ListTile(
+                              trailing: CommonMinIconButtonTheme(
+                                child: IconButton.filledTonal(
+                                  onPressed: () {},
+                                  icon: Icon(Icons.add, size: 18),
+                                  padding: EdgeInsets.zero,
+                                ),
+                              ),
+                              minTileHeight:
+                                  32 + globalState.measure.bodyMediumHeight,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              title: Text(group.name),
+                              subtitle: Text(group.type.value),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }, childCount: groups.length),
+              ),
+              SliverToBoxAdapter(child: SizedBox(height: 8)),
+            ],
+            if (proxies.isNotEmpty) ...[
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverToBoxAdapter(
+                  child: InfoHeader(info: Info(label: '代理')),
+                ),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate((_, index) {
+                  final proxy = proxies[index];
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    color: Colors.transparent,
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        Flexible(
+                          child: CommonCard(
+                            radius: 18,
+                            onPressed: () {},
+                            child: ListTile(
+                              trailing: CommonMinIconButtonTheme(
+                                child: IconButton.filledTonal(
+                                  onPressed: () {},
+                                  icon: Icon(Icons.add, size: 18),
+                                  padding: EdgeInsets.zero,
+                                ),
+                              ),
+                              minTileHeight:
+                                  32 + globalState.measure.bodyMediumHeight,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              title: Text(proxy.name),
+                              subtitle: Text(proxy.type),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }, childCount: proxies.length),
+              ),
+            ],
           ],
         ),
       ),
