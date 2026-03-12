@@ -410,13 +410,16 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
     final isBottomSheet =
         SheetProvider.of(context)?.type == SheetType.bottomSheet;
     return AdaptiveSheetScaffold(
+      bottomSheetBackdrop: true,
       actions: [IconButtonData(icon: Icons.check, onPressed: () {})],
       body: SizedBox(
         height: isBottomSheet
             ? appController.viewSize.height * 0.65
             : double.maxFinite,
         child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 20),
+          padding: EdgeInsets.symmetric(
+            horizontal: 16,
+          ).copyWith(bottom: 20, top: context.sheetTopPadding),
           children: [
             generateSectionV3(
               title: '通用',
@@ -645,9 +648,12 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
           : double.maxFinite,
       child: AdaptiveSheetScaffold(
         title: '编辑代理',
+        bottomSheetBackdrop: true,
         body: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: SizedBox(height: context.sheetTopPadding),
+            ),
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverToBoxAdapter(
@@ -755,10 +761,13 @@ class _AddProxiesView extends ConsumerWidget {
           ? appController.viewSize.height * 0.80
           : double.maxFinite,
       child: AdaptiveSheetScaffold(
+        bottomSheetBackdrop: true,
         title: '添加代理',
         body: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: SizedBox(height: context.sheetTopPadding),
+            ),
             if (groups.isNotEmpty) ...[
               SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 16),

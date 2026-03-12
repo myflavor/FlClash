@@ -17,17 +17,21 @@ class TUNButton extends StatelessWidget {
           showSheet(
             context: context,
             builder: (_) {
-              return AdaptiveSheetScaffold(
-                body: generateListView(
-                  generateSection(
-                    items: [
-                      if (system.isDesktop) const TUNItem(),
-                      if (system.isMacOS) const AutoSetSystemDnsItem(),
-                      const TunStackItem(),
-                    ],
-                  ),
-                ),
-                title: appLocalizations.tun,
+              return Builder(
+                builder: (context) {
+                  return AdaptiveSheetScaffold(
+                    body: generateListView(
+                      generateSection(
+                        items: [
+                          if (system.isDesktop) const TUNItem(),
+                          if (system.isMacOS) const AutoSetSystemDnsItem(),
+                          const TunStackItem(),
+                        ],
+                      ),
+                    ),
+                    title: appLocalizations.tun,
+                  );
+                },
               );
             },
           );

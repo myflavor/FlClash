@@ -463,12 +463,15 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveSheetScaffold(
+      bottomSheetBackdrop: true,
       actions: [IconButtonData(icon: Icons.check, onPressed: _handleSave)],
       body: Padding(
-        padding: EdgeInsets.only(bottom: 32, top: 12),
+        padding: EdgeInsets.only(bottom: 32),
         child: ReorderableListView.builder(
           buildDefaultDragHandles: false,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+          ).copyWith(top: context.sheetTopPadding),
           proxyDecorator: (child, index, animation) {
             return commonProxyDecorator(
               _buildItem(index, true),

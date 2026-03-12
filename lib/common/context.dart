@@ -1,12 +1,24 @@
+import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/manager.dart';
 import 'package:fl_clash/models/state.dart';
+import 'package:fl_clash/widgets/inherited.dart';
 import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:fl_clash/widgets/sheet.dart';
 import 'package:flutter/material.dart';
 
 extension BuildContextExtension on BuildContext {
   CommonScaffoldState? get commonScaffoldState {
     return findAncestorStateOfType<CommonScaffoldState>();
+  }
+
+  double get sheetTopPadding {
+    final sheetType = SheetProvider.of(this)!.type;
+    if (sheetType == SheetType.bottomSheet) {
+      return sheetAppBarHeight;
+    } else {
+      return 10;
+    }
   }
 
   void showNotifier(String text, {MessageActionState? actionState}) {

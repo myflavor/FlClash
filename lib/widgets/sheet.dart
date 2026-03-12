@@ -110,12 +110,14 @@ Future<T?> showExtend<T>(
 class AdaptiveSheetScaffold extends StatefulWidget {
   final Widget body;
   final String title;
+  final bool bottomSheetBackdrop;
   final List<IconButtonData> actions;
 
   const AdaptiveSheetScaffold({
     super.key,
     required this.body,
     required this.title,
+    this.bottomSheetBackdrop = false,
     this.actions = const [],
   });
 
@@ -124,6 +126,22 @@ class AdaptiveSheetScaffold extends StatefulWidget {
 }
 
 class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
+  IconData get backIconData {
+    if (kIsWeb) {
+      return Icons.arrow_back;
+    }
+    switch (Theme.of(context).platform) {
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        return Icons.arrow_back;
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        return Icons.arrow_back_ios_new_rounded;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final backgroundColor = context.colorScheme.surface;
@@ -160,22 +178,6 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
 
     final actions = widget.actions.map(buildIconButton).toList();
 
-    IconData getBackIconData() {
-      if (kIsWeb) {
-        return Icons.arrow_back;
-      }
-      switch (Theme.of(context).platform) {
-        case TargetPlatform.android:
-        case TargetPlatform.fuchsia:
-        case TargetPlatform.linux:
-        case TargetPlatform.windows:
-          return Icons.arrow_back;
-        case TargetPlatform.iOS:
-        case TargetPlatform.macOS:
-          return Icons.arrow_back_ios_new_rounded;
-      }
-    }
-
     final popButton = type != SheetType.page
         ? (useCloseIcon
               ? buildIconButton(
@@ -192,7 +194,7 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
                 )
               : buildIconButton(
                   IconButtonData(
-                    icon: getBackIconData(),
+                    icon: backIconData,
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -202,11 +204,14 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
 
     final suffixPop = type != SheetType.page && actions.isEmpty && useCloseIcon;
     final appBar = AppBar(
+      backgroundColor:
+          type == SheetType.bottomSheet && widget.bottomSheetBackdrop == true
+          ? backgroundColor.opacity80
+          : backgroundColor,
       forceMaterialTransparency: type == SheetType.bottomSheet ? true : false,
       leading: suffixPop ? null : popButton,
       automaticallyImplyLeading: type == SheetType.page ? true : false,
       centerTitle: true,
-      backgroundColor: backgroundColor,
       toolbarHeight: type == SheetType.bottomSheet ? 48 : null,
       title: Text(widget.title),
       titleTextStyle: type == SheetType.bottomSheet
@@ -216,7 +221,7 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
     );
     if (type == SheetType.bottomSheet) {
       final handleSize = Size(28, 4);
-      return Column(
+      final sheetAppBar = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
@@ -234,9 +239,44 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
             ),
           ),
           Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: appBar),
-          Flexible(flex: 1, child: widget.body),
-          SizedBox(height: MediaQuery.of(context).viewPadding.bottom),
+          SizedBox(height: 6),
         ],
+      );
+      return ScrollConfiguration(
+        behavior: HiddenBarScrollBehavior(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!widget.bottomSheetBackdrop) ...[
+              sheetAppBar,
+              Flexible(child: widget.body),
+            ] else ...[
+              Flexible(
+                child: Stack(
+                  children: [
+                    widget.body,
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(28),
+                          topRight: Radius.circular(28),
+                        ),
+                        child: BackdropFilter(
+                          filter: commonFilter,
+                          child: sheetAppBar,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            SizedBox(height: MediaQuery.of(context).viewPadding.bottom),
+          ],
+        ),
       );
     }
     return CommonScaffold(
