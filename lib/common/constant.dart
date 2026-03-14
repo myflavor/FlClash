@@ -63,7 +63,7 @@ const defaultTestUrl = 'https://www.gstatic.com/generate_204';
 final commonFilter = ImageFilter.blur(
   sigmaX: 5,
   sigmaY: 5,
-  tileMode: TileMode.mirror,
+  tileMode: TileMode.clamp,
 );
 
 const listEquality = ListEquality();

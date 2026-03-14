@@ -463,7 +463,7 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveSheetScaffold(
-      bottomSheetBackdrop: true,
+      sheetTransparentToolBar: true,
       actions: [IconButtonData(icon: Icons.check, onPressed: _handleSave)],
       body: Padding(
         padding: EdgeInsets.only(bottom: 32),

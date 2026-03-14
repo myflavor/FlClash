@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/models/common.dart';
@@ -110,14 +112,14 @@ Future<T?> showExtend<T>(
 class AdaptiveSheetScaffold extends StatefulWidget {
   final Widget body;
   final String title;
-  final bool bottomSheetBackdrop;
+  final bool sheetTransparentToolBar;
   final List<IconButtonData> actions;
 
   const AdaptiveSheetScaffold({
     super.key,
     required this.body,
     required this.title,
-    this.bottomSheetBackdrop = false,
+    this.sheetTransparentToolBar = false,
     this.actions = const [],
   });
 
@@ -126,6 +128,8 @@ class AdaptiveSheetScaffold extends StatefulWidget {
 }
 
 class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
+  final _isScrolledController = ValueNotifier<bool>(false);
+
   IconData get backIconData {
     if (kIsWeb) {
       return Icons.arrow_back;
@@ -143,13 +147,21 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
   }
 
   @override
+  void dispose() {
+    _isScrolledController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final backgroundColor = context.colorScheme.surface;
     final sheetProvider = SheetProvider.of(context);
     final nestedNavigatorPopCallback =
         sheetProvider?.nestedNavigatorPopCallback;
     final ModalRoute<dynamic>? route = ModalRoute.of(context);
     final type = sheetProvider?.type ?? SheetType.page;
+    final backgroundColor = type == SheetType.bottomSheet
+        ? context.colorScheme.surfaceContainerLow
+        : context.colorScheme.surface;
     final useCloseIcon =
         type != SheetType.page &&
         (nestedNavigatorPopCallback != null &&
@@ -204,10 +216,7 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
 
     final suffixPop = type != SheetType.page && actions.isEmpty && useCloseIcon;
     final appBar = AppBar(
-      backgroundColor:
-          type == SheetType.bottomSheet && widget.bottomSheetBackdrop == true
-          ? backgroundColor.opacity80
-          : backgroundColor,
+      backgroundColor: backgroundColor,
       forceMaterialTransparency: type == SheetType.bottomSheet ? true : false,
       leading: suffixPop ? null : popButton,
       automaticallyImplyLeading: type == SheetType.page ? true : false,
@@ -244,38 +253,63 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
       );
       return ScrollConfiguration(
         behavior: HiddenBarScrollBehavior(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!widget.bottomSheetBackdrop) ...[
-              sheetAppBar,
-              Flexible(child: widget.body),
-            ] else ...[
-              Flexible(
-                child: Stack(
-                  children: [
-                    widget.body,
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(28),
-                          topRight: Radius.circular(28),
-                        ),
-                        child: BackdropFilter(
-                          filter: commonFilter,
+        child: ClipRRect(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!widget.sheetTransparentToolBar) ...[
+                sheetAppBar,
+                Flexible(child: widget.body),
+              ] else ...[
+                Flexible(
+                  child: Stack(
+                    children: [
+                      NotificationListener<ScrollNotification>(
+                        child: widget.body,
+                        onNotification: (notification) {
+                          if (notification is ScrollUpdateNotification) {
+                            final pixels = notification.metrics.pixels;
+                            _isScrolledController.value = pixels > 6;
+                          }
+                          return false;
+                        },
+                      ),
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: ValueListenableBuilder(
+                          valueListenable: _isScrolledController,
+                          builder: (_, isScrolled, child) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(28),
+                              ),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 15.0,
+                                  sigmaY: 15.0,
+                                ),
+                                child: ColoredBox(
+                                  color: isScrolled
+                                      ? backgroundColor.opacity60
+                                      : backgroundColor,
+                                  child: child!,
+                                ),
+                              ),
+                            );
+                          },
                           child: sheetAppBar,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
+              SizedBox(height: MediaQuery.of(context).viewPadding.bottom),
             ],
-            SizedBox(height: MediaQuery.of(context).viewPadding.bottom),
-          ],
+          ),
         ),
       );
     }

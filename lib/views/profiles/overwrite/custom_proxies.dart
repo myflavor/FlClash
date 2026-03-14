@@ -159,6 +159,9 @@ class _EditProxyGroupNestedSheet extends StatelessWidget {
                 child: PagedSheet(
                   decoration: MaterialSheetDecoration(
                     size: SheetSize.stretch,
+                    color: sheetProvider.type == SheetType.bottomSheet
+                        ? context.colorScheme.surfaceContainerLow
+                        : context.colorScheme.surface,
                     borderRadius: sheetProvider.type == SheetType.bottomSheet
                         ? BorderRadius.vertical(top: Radius.circular(28))
                         : BorderRadius.zero,
@@ -410,7 +413,7 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
     final isBottomSheet =
         SheetProvider.of(context)?.type == SheetType.bottomSheet;
     return AdaptiveSheetScaffold(
-      bottomSheetBackdrop: true,
+      sheetTransparentToolBar: true,
       actions: [IconButtonData(icon: Icons.check, onPressed: () {})],
       body: SizedBox(
         height: isBottomSheet
@@ -648,11 +651,11 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
           : double.maxFinite,
       child: AdaptiveSheetScaffold(
         title: '编辑代理',
-        bottomSheetBackdrop: true,
+        sheetTransparentToolBar: true,
         body: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-              child: SizedBox(height: context.sheetTopPadding),
+              child: SizedBox(height: context.sheetTopPadding + 8),
             ),
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -761,7 +764,7 @@ class _AddProxiesView extends ConsumerWidget {
           ? appController.viewSize.height * 0.80
           : double.maxFinite,
       child: AdaptiveSheetScaffold(
-        bottomSheetBackdrop: true,
+        sheetTransparentToolBar: true,
         title: '添加代理',
         body: CustomScrollView(
           slivers: [
