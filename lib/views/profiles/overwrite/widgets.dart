@@ -47,21 +47,3 @@ class ProfileIdProvider extends InheritedWidget {
   bool updateShouldNotify(ProfileIdProvider oldWidget) =>
       profileId != oldWidget.profileId;
 }
-
-class ProxyGroupProvider extends InheritedWidget {
-  final ProxyGroup proxyGroup;
-
-  const ProxyGroupProvider({
-    super.key,
-    required this.proxyGroup,
-    required super.child,
-  });
-
-  static ProxyGroupProvider? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ProxyGroupProvider>();
-  }
-
-  @override
-  bool updateShouldNotify(ProxyGroupProvider oldWidget) =>
-      proxyGroup != oldWidget.proxyGroup;
-}

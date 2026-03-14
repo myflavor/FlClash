@@ -13,12 +13,11 @@ import 'package:fl_clash/views/config/scripts.dart';
 import 'package:fl_clash/views/profiles/preview.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 part 'custom.dart';
-part 'custom_proxies.dart';
+part 'custom_groups.dart';
 part 'script.dart';
 part 'standard.dart';
 part 'widgets.dart';

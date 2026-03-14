@@ -25,8 +25,10 @@ class _CustomProxyGroupsView extends ConsumerWidget {
       builder: (context) {
         return ProfileIdProvider(
           profileId: profileId,
-          child: ProxyGroupProvider(
-            proxyGroup: proxyGroup,
+          child: ProviderScope(
+            overrides: [
+              proxyGroupProvider.overrideWithBuild((_, __) => proxyGroup),
+            ],
             child: _EditProxyGroupNestedSheet(),
           ),
         );
@@ -39,6 +41,7 @@ class _CustomProxyGroupsView extends ConsumerWidget {
     required ProxyGroup proxyGroup,
     required int index,
     required int total,
+    required VoidCallback onPressed,
   }) {
     final position = ItemPosition.get(index, total);
     return ItemPositionProvider(
@@ -47,12 +50,10 @@ class _CustomProxyGroupsView extends ConsumerWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: DecorationListItem(
+          onPressed: onPressed,
           minVerticalPadding: 8,
           title: Text(proxyGroup.name),
           subtitle: Text(proxyGroup.type.name),
-          onPressed: () {
-            _handleEditProxyGroup(context, proxyGroup);
-          },
           trailing: ReorderableDelayedDragStartListener(
             index: index,
             child: Icon(Icons.drag_handle),
@@ -77,6 +78,9 @@ class _CustomProxyGroupsView extends ConsumerWidget {
             proxyGroup: proxyGroup,
             total: proxyGroups.length,
             index: index,
+            onPressed: () {
+              _handleEditProxyGroup(context, proxyGroup);
+            },
           );
         },
         itemCount: proxyGroups.length,
@@ -186,69 +190,19 @@ class _EditProxyGroupView extends ConsumerStatefulWidget {
 }
 
 class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
-  late ProxyGroup _proxyGroup;
-
-  final _nameController = TextEditingController();
-  final _hideController = ValueNotifier<bool>(false);
-  final _disableUDPController = ValueNotifier<bool>(false);
-  final _proxiesController = ValueNotifier<List<String>>([]);
-  final _useController = ValueNotifier<List<String>>([]);
-  final _typeController = ValueNotifier<GroupType>(GroupType.Selector);
-  final _allProxiesController = ValueNotifier<bool>(false);
-  final _allProviderController = ValueNotifier<bool>(false);
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _nameController.text = _proxyGroup.name;
-      _hideController.value = _proxyGroup.hidden ?? false;
-      _disableUDPController.value = _proxyGroup.disableUDP ?? false;
-      _typeController.value = _proxyGroup.type;
-      _proxiesController.value = _proxyGroup.proxies ?? [];
-      _useController.value = _proxyGroup.use ?? [];
-      if (_proxyGroup.includeAll == true) {
-        _allProxiesController.value = true;
-        _allProviderController.value = true;
-      } else {
-        _allProxiesController.value = _proxyGroup.includeAllProxies ?? false;
-        _allProviderController.value = _proxyGroup.includeAllProviders ?? false;
-      }
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _proxyGroup = ProxyGroupProvider.of(context)!.proxyGroup;
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _hideController.dispose();
-    _disableUDPController.dispose();
-    _typeController.dispose();
-    _proxiesController.dispose();
-    _useController.dispose();
-    _allProxiesController.dispose();
-    _allProviderController.dispose();
-    super.dispose();
-  }
-
   Future<void> _showTypeOptions() async {
-    final value = await globalState.showCommonDialog<GroupType>(
-      child: OptionsDialog<GroupType>(
-        title: '类型',
-        options: GroupType.values,
-        textBuilder: (item) => item.name,
-        value: _typeController.value,
-      ),
-    );
-    if (value == null) {
-      return;
-    }
-    _typeController.value = value;
+    // final value = await globalState.showCommonDialog<GroupType>(
+    //   child: OptionsDialog<GroupType>(
+    //     title: '类型',
+    //     options: GroupType.values,
+    //     textBuilder: (item) => item.name,
+    //     value: _typeController.value,
+    //   ),
+    // );
+    // if (value == null) {
+    //   return;
+    // }
+    // _typeController.value = value;
   }
 
   Widget _buildItem({
@@ -283,125 +237,137 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
   }
 
   void _handleToProxiesView() {
-    Navigator.of(context).push(
-      PagedSheetRoute(
-        builder: (context) => _EditProxiesView(_proxyGroup.proxies ?? []),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(PagedSheetRoute(builder: (context) => _EditProxiesView()));
   }
 
   void _handleToProvidersView() {}
 
-  Widget _buildProvidersItem() {
+  Widget _buildProvidersItem(bool includeAllProviders, List<String> use) {
     return _buildItem(
       title: Text('选择代理集'),
-      trailing: ValueListenableBuilder(
-        valueListenable: _allProviderController,
-        builder: (_, allProviders, _) {
-          return ValueListenableBuilder(
-            valueListenable: _useController,
-            builder: (_, use, _) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 2,
-                children: [
-                  !allProviders
-                      ? Card(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Container(
-                            constraints: BoxConstraints(minWidth: 32),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 3,
-                              ),
-                              child: Text(
-                                textAlign: TextAlign.center,
-                                '${use.length}',
-                                style: context.textTheme.bodySmall,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Icon(
-                          Icons.check_circle_outline,
-                          size: 20,
-                          color: Colors.greenAccent.shade200,
-                        ),
-                  Icon(Icons.arrow_forward_ios),
-                ],
-              );
-            },
-          );
-        },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 2,
+        children: [
+          !includeAllProviders
+              ? Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Container(
+                    constraints: BoxConstraints(minWidth: 32),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                      child: Text(
+                        textAlign: TextAlign.center,
+                        '${use.length}',
+                        style: context.textTheme.bodySmall,
+                      ),
+                    ),
+                  ),
+                )
+              : Icon(
+                  Icons.check_circle_outline,
+                  size: 20,
+                  color: Colors.greenAccent.shade200,
+                ),
+          Icon(Icons.arrow_forward_ios),
+        ],
       ),
       onPressed: _handleToProvidersView,
     );
   }
 
-  Widget _buildProxiesItem() {
+  Widget _buildProxiesItem(bool includeAllProxies, List<String> proxies) {
     return _buildItem(
       title: Text('选择代理'),
-      trailing: ValueListenableBuilder(
-        valueListenable: _allProxiesController,
-        builder: (_, allProxies, _) {
-          return ValueListenableBuilder(
-            valueListenable: _proxiesController,
-            builder: (_, proxies, _) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 2,
-                children: [
-                  !allProxies
-                      ? Card(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Container(
-                            constraints: BoxConstraints(minWidth: 32),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 3,
-                              ),
-                              child: Text(
-                                textAlign: TextAlign.center,
-                                '${proxies.length}',
-                                style: context.textTheme.bodySmall,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Icon(
-                          Icons.check_circle_outline,
-                          size: 20,
-                          color: Colors.greenAccent.shade200,
-                        ),
-                  Icon(Icons.arrow_forward_ios),
-                ],
-              );
-            },
-          );
-        },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 2,
+        children: [
+          !includeAllProxies
+              ? Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Container(
+                    constraints: BoxConstraints(minWidth: 32),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                      child: Text(
+                        textAlign: TextAlign.center,
+                        '${proxies.length}',
+                        style: context.textTheme.bodySmall,
+                      ),
+                    ),
+                  ),
+                )
+              : Icon(
+                  Icons.check_circle_outline,
+                  size: 20,
+                  color: Colors.greenAccent.shade200,
+                ),
+          Icon(Icons.arrow_forward_ios),
+        ],
       ),
       onPressed: _handleToProxiesView,
     );
   }
 
-  Widget _buildGroupTypeItem() {
+  Widget _buildTypeItem(GroupType type) {
     return _buildItem(
       title: Text('类型'),
       onPressed: () {
         _showTypeOptions();
       },
-      trailing: ValueListenableBuilder(
-        valueListenable: _typeController,
-        builder: (_, type, _) {
-          return Text(type.name);
+      trailing: Text(type.name),
+    );
+  }
+
+  Widget _buildNameItem(String name) {
+    return _buildItem(
+      title: Text('名称'),
+      trailing: TextFormField(
+        initialValue: name,
+        onChanged: (value) {},
+        textAlign: TextAlign.end,
+        decoration: InputDecoration.collapsed(
+          border: NoInputBorder(),
+          hintText: '输入策略组名称',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHiddenItem(bool hidden) {
+    return _buildItem(
+      title: Text('从列表中隐藏'),
+      onPressed: () {
+        // _hideController.value = !_hideController.value;
+      },
+      trailing: Switch(
+        value: hidden,
+        onChanged: (value) {
+          // _hideController.value = value;
+        },
+      ),
+    );
+  }
+
+  Widget _buildDisableUDPItem(bool disableUDP) {
+    return _buildItem(
+      title: Text('禁用UDP'),
+      onPressed: () {
+        // _disableUDPController.value = !_disableUDPController.value;
+      },
+      trailing: Switch(
+        value: disableUDP,
+        onChanged: (value) {
+          // _disableUDPController.value = value;
         },
       ),
     );
@@ -409,9 +375,9 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
 
   @override
   Widget build(BuildContext context) {
-    _proxyGroup = ProxyGroupProvider.of(context)!.proxyGroup;
     final isBottomSheet =
         SheetProvider.of(context)?.type == SheetType.bottomSheet;
+    final proxyGroup = ref.watch(proxyGroupProvider);
     return AdaptiveSheetScaffold(
       sheetTransparentToolBar: true,
       actions: [IconButtonData(icon: Icons.check, onPressed: () {})],
@@ -427,60 +393,24 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
             generateSectionV3(
               title: '通用',
               items: [
-                _buildItem(
-                  title: Text('名称'),
-                  trailing: TextFormField(
-                    controller: _nameController,
-                    textAlign: TextAlign.end,
-                    decoration: InputDecoration.collapsed(
-                      border: NoInputBorder(),
-                      hintText: '输入策略组名称',
-                    ),
-                  ),
-                ),
-                _buildGroupTypeItem(),
+                _buildNameItem(proxyGroup.name),
+                _buildTypeItem(proxyGroup.type),
                 _buildItem(title: Text('图标')),
-                _buildItem(
-                  title: Text('从列表中隐藏'),
-                  onPressed: () {
-                    _hideController.value = !_hideController.value;
-                  },
-                  trailing: ValueListenableBuilder(
-                    valueListenable: _hideController,
-                    builder: (_, value, _) {
-                      return Switch(
-                        value: value,
-                        onChanged: (value) {
-                          _hideController.value = value;
-                        },
-                      );
-                    },
-                  ),
-                ),
-                _buildItem(
-                  title: Text('禁用UDP'),
-                  onPressed: () {
-                    _disableUDPController.value = !_disableUDPController.value;
-                  },
-                  trailing: ValueListenableBuilder(
-                    valueListenable: _disableUDPController,
-                    builder: (_, value, _) {
-                      return Switch(
-                        value: value,
-                        onChanged: (value) {
-                          _disableUDPController.value = value;
-                        },
-                      );
-                    },
-                  ),
-                ),
+                _buildHiddenItem(proxyGroup.hidden ?? false),
+                _buildDisableUDPItem(proxyGroup.disableUDP ?? false),
               ],
             ),
             generateSectionV3(
               title: '节点',
               items: [
-                _buildProxiesItem(),
-                _buildProvidersItem(),
+                _buildProxiesItem(
+                  proxyGroup.includeAllProxies ?? false,
+                  proxyGroup.proxies ?? [],
+                ),
+                _buildProvidersItem(
+                  proxyGroup.includeAllProviders ?? false,
+                  proxyGroup.use ?? [],
+                ),
                 _buildItem(
                   title: Text('节点过滤器'),
                   trailing: TextFormField(
@@ -564,14 +494,7 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
             ),
             generateSectionV3(
               title: '操作',
-              items: [
-                _buildItem(
-                  title: Text('删除'),
-                  onPressed: () {
-                    _disableUDPController.value = !_disableUDPController.value;
-                  },
-                ),
-              ],
+              items: [_buildItem(title: Text('删除'), onPressed: () {})],
             ),
           ],
         ),
@@ -582,9 +505,7 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
 }
 
 class _EditProxiesView extends ConsumerStatefulWidget {
-  final List<String> proxyNames;
-
-  const _EditProxiesView(this.proxyNames);
+  const _EditProxiesView();
 
   @override
   ConsumerState<_EditProxiesView> createState() => _EditProxiesViewState();
@@ -592,12 +513,9 @@ class _EditProxiesView extends ConsumerStatefulWidget {
 
 class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
   void _handleToAddProxiesView() {
-    Navigator.of(context).push(
-      PagedSheetRoute(
-        builder: (context) =>
-            _AddProxiesView(addedProxyNames: widget.proxyNames),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(PagedSheetRoute(builder: (context) => _AddProxiesView()));
   }
 
   Widget _buildItem({
@@ -635,7 +553,9 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
   @override
   Widget build(BuildContext context) {
     final profileId = ProfileIdProvider.of(context)!.profileId;
-    final proxyNames = widget.proxyNames;
+    final proxyNames = ref.watch(
+      proxyGroupProvider.select((state) => state.proxies ?? []),
+    );
     final proxyTypeMap =
         ref.watch(
           clashConfigProvider(
@@ -714,9 +634,7 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
 }
 
 class _AddProxiesView extends ConsumerWidget {
-  final List<String> addedProxyNames;
-
-  const _AddProxiesView({required this.addedProxyNames});
+  const _AddProxiesView();
 
   Widget _buildItem({
     required String title,
@@ -744,20 +662,26 @@ class _AddProxiesView extends ConsumerWidget {
     final isBottomSheet =
         SheetProvider.of(context)?.type == SheetType.bottomSheet;
     final profileId = ProfileIdProvider.of(context)!.profileId;
-    final currentGroupName = ProxyGroupProvider.of(context)!.proxyGroup.name;
-    final proxiesAndGroupsMap = ref.watch(
+    final allProxiesAndProxyGroups = ref.watch(
       clashConfigProvider(profileId).select(
         (state) =>
             VM2(state.value?.proxies ?? [], state.value?.proxyGroups ?? []),
       ),
     );
-    final allProxies = proxiesAndGroupsMap.a;
-    final allProxyGroups = proxiesAndGroupsMap.b;
+    final allProxies = allProxiesAndProxyGroups.a;
+    final allProxyGroups = allProxiesAndProxyGroups.b;
+    final proxyNamesAndName = ref.watch(
+      proxyGroupProvider.select(
+        (state) => VM2(state.name, state.proxies ?? []),
+      ),
+    );
+    final groupName = proxyNamesAndName.a;
+    final proxyNames = proxyNamesAndName.b;
     final proxies = allProxies
-        .where((item) => !addedProxyNames.contains(item.name))
+        .where((item) => !proxyNames.contains(item.name))
         .toList();
-    final groups = allProxyGroups
-        .where((item) => currentGroupName != item.name)
+    final proxyGroups = allProxyGroups
+        .where((item) => groupName != item.name)
         .toList();
     return SizedBox(
       height: isBottomSheet
@@ -771,7 +695,7 @@ class _AddProxiesView extends ConsumerWidget {
             SliverToBoxAdapter(
               child: SizedBox(height: context.sheetTopPadding),
             ),
-            if (groups.isNotEmpty) ...[
+            if (proxyGroups.isNotEmpty) ...[
               SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverToBoxAdapter(
@@ -780,11 +704,11 @@ class _AddProxiesView extends ConsumerWidget {
               ),
               SliverList(
                 delegate: SliverChildBuilderDelegate((_, index) {
-                  final group = groups[index];
-                  final position = ItemPosition.get(index, groups.length);
+                  final proxyGroup = proxyGroups[index];
+                  final position = ItemPosition.get(index, proxyGroups.length);
                   return _buildItem(
-                    title: group.name,
-                    subtitle: group.type.value,
+                    title: proxyGroup.name,
+                    subtitle: proxyGroup.type.value,
                     position: position,
                     trailing: CommonMinIconButtonTheme(
                       child: IconButton.filledTonal(
@@ -794,7 +718,7 @@ class _AddProxiesView extends ConsumerWidget {
                       ),
                     ),
                   );
-                }, childCount: groups.length),
+                }, childCount: proxyGroups.length),
               ),
               SliverToBoxAdapter(child: SizedBox(height: 8)),
             ],

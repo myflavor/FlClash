@@ -333,17 +333,6 @@ class ProxyGroups extends _$ProxyGroups with AsyncNotifierMixin {
   List<ProxyGroup> get value => state.value ?? [];
 }
 
-@Riverpod(name: 'proxyGroupProvider')
-class ProxyGroupProvider extends _$ProxyGroupProvider with AsyncNotifierMixin {
-  @override
-  Stream<ProxyGroup> build(int profileId, String name) {
-    return database.proxyGroupsDao.get(profileId, name).watchSingle();
-  }
-
-  @override
-  ProxyGroup get value => state.requireValue;
-}
-
 @riverpod
 class ProfileDisabledRuleIds extends _$ProfileDisabledRuleIds
     with AsyncNotifierMixin {

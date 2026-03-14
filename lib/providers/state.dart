@@ -727,3 +727,11 @@ class AccessControlState extends _$AccessControlState
   @override
   AccessControlProps build() => AccessControlProps();
 }
+
+@Riverpod(name: 'proxyGroupProvider')
+class ProxyGroupProvider extends _$ProxyGroupProvider {
+  @override
+  ProxyGroup build() {
+    return throw 'Initialization proxyGroupProvider error';
+  }
+}
