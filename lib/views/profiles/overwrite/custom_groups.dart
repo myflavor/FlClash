@@ -190,19 +190,21 @@ class _EditProxyGroupView extends ConsumerStatefulWidget {
 }
 
 class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
-  Future<void> _showTypeOptions() async {
-    // final value = await globalState.showCommonDialog<GroupType>(
-    //   child: OptionsDialog<GroupType>(
-    //     title: '类型',
-    //     options: GroupType.values,
-    //     textBuilder: (item) => item.name,
-    //     value: _typeController.value,
-    //   ),
-    // );
-    // if (value == null) {
-    //   return;
-    // }
-    // _typeController.value = value;
+  Future<void> _showTypeOptions(GroupType type) async {
+    final value = await globalState.showCommonDialog<GroupType>(
+      child: OptionsDialog<GroupType>(
+        title: '类型',
+        options: GroupType.values,
+        textBuilder: (item) => item.name,
+        value: type,
+      ),
+    );
+    if (value == null) {
+      return;
+    }
+    ref
+        .read(proxyGroupProvider.notifier)
+        .update((state) => state.copyWith(type: value));
   }
 
   Widget _buildItem({
@@ -322,7 +324,7 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
     return _buildItem(
       title: Text('类型'),
       onPressed: () {
-        _showTypeOptions();
+        _showTypeOptions(type);
       },
       trailing: Text(type.name),
     );
@@ -731,7 +733,6 @@ class _AddProxiesViewState extends ConsumerState<_AddProxiesView>
   }) {
     return ExternalDismissible(
       key: ValueKey(title),
-      effect: ExternalDismissibleEffect.resize,
       dismiss: dismiss,
       onDismissed: onDismissed,
       child: Padding(
