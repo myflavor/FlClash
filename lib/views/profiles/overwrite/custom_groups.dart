@@ -345,31 +345,41 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
     );
   }
 
+  void _handleChangeHidden() {
+    ref
+        .read(proxyGroupProvider.notifier)
+        .update((state) => state.copyWith(hidden: !(state.hidden ?? false)));
+  }
+
   Widget _buildHiddenItem(bool hidden) {
     return _buildItem(
       title: Text('从列表中隐藏'),
-      onPressed: () {
-        // _hideController.value = !_hideController.value;
-      },
+      onPressed: _handleChangeHidden,
       trailing: Switch(
         value: hidden,
-        onChanged: (value) {
-          // _hideController.value = value;
+        onChanged: (_) {
+          _handleChangeHidden();
         },
       ),
     );
   }
 
+  void _handleChangeDisableUDP() {
+    ref
+        .read(proxyGroupProvider.notifier)
+        .update(
+          (state) => state.copyWith(disableUDP: !(state.disableUDP ?? false)),
+        );
+  }
+
   Widget _buildDisableUDPItem(bool disableUDP) {
     return _buildItem(
       title: Text('禁用UDP'),
-      onPressed: () {
-        // _disableUDPController.value = !_disableUDPController.value;
-      },
+      onPressed: _handleChangeDisableUDP,
       trailing: Switch(
         value: disableUDP,
-        onChanged: (value) {
-          // _disableUDPController.value = value;
+        onChanged: (_) {
+          _handleChangeDisableUDP();
         },
       ),
     );
@@ -605,12 +615,26 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
     });
   }
 
+  void _handleChangeIncludeAllProxies() {
+    ref
+        .read(proxyGroupProvider.notifier)
+        .update(
+          (state) => state.copyWith(
+            includeAllProxies: !(state.includeAllProxies ?? false),
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileId = ProfileIdProvider.of(context)!.profileId;
-    final proxyNames = ref.watch(
-      proxyGroupProvider.select((state) => state.proxies ?? []),
+    final vm2 = ref.watch(
+      proxyGroupProvider.select(
+        (state) => VM2(state.includeAllProxies ?? false, state.proxies ?? []),
+      ),
     );
+    final includeAllProxies = vm2.a;
+    final proxyNames = vm2.b;
     final proxyTypeMap =
         ref.watch(
           clashConfigProvider(
@@ -641,7 +665,12 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
                   child: ListItem.switchItem(
                     minTileHeight: 54,
                     title: Text('包含所有代理'),
-                    delegate: SwitchDelegate(value: false, onChanged: (_) {}),
+                    delegate: SwitchDelegate(
+                      value: includeAllProxies,
+                      onChanged: (_) {
+                        _handleChangeIncludeAllProxies();
+                      },
+                    ),
                   ),
                 ),
               ),
