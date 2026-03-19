@@ -295,7 +295,7 @@ class Loading extends _$Loading with AutoDisposeNotifierMixin {
 }
 
 @riverpod
-class SelectedItems extends _$SelectedItems with AutoDisposeNotifierMixin {
+class Items extends _$Items with AutoDisposeNotifierMixin {
   @override
   Set<dynamic> build(String key) {
     return {};
@@ -303,7 +303,7 @@ class SelectedItems extends _$SelectedItems with AutoDisposeNotifierMixin {
 }
 
 @riverpod
-class SelectedItem extends _$SelectedItem with AutoDisposeNotifierMixin {
+class Item extends _$Item with AutoDisposeNotifierMixin {
   @override
   dynamic build(String key) {
     return null;

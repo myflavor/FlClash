@@ -247,7 +247,7 @@ class _ListInputPageState extends ConsumerState<ListInputPage> {
   }
 
   void _handleSelected(String value) {
-    ref.read(selectedItemsProvider(_key).notifier).update((state) {
+    ref.read(itemsProvider(_key).notifier).update((state) {
       final newState = Set<String>.from(state)..addOrRemove(value);
       return newState;
     });
@@ -255,7 +255,7 @@ class _ListInputPageState extends ConsumerState<ListInputPage> {
 
   void _handleSelectAll() {
     final ids = _items.toSet();
-    ref.read(selectedItemsProvider(_key).notifier).update((selected) {
+    ref.read(itemsProvider(_key).notifier).update((selected) {
       return selected.containsAll(ids) ? {} : ids;
     });
   }
@@ -298,12 +298,12 @@ class _ListInputPageState extends ConsumerState<ListInputPage> {
   }
 
   void _handleDelete() {
-    final selectedItems = ref.read(selectedItemsProvider(_key));
+    final selectedItems = ref.read(itemsProvider(_key));
     final newItems = _items
         .where((item) => !selectedItems.contains(item))
         .toList();
     _items = newItems;
-    ref.read(selectedItemsProvider(_key).notifier).value = {};
+    ref.read(itemsProvider(_key).notifier).value = {};
     setState(() {});
   }
 
@@ -356,11 +356,11 @@ class _ListInputPageState extends ConsumerState<ListInputPage> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedItems = ref.watch(selectedItemsProvider(_key));
+    final selectedItems = ref.watch(itemsProvider(_key));
     return CommonPopScope(
       onPop: (_) {
         if (selectedItems.isNotEmpty) {
-          ref.read(selectedItemsProvider(_key).notifier).value = {};
+          ref.read(itemsProvider(_key).notifier).value = {};
           return false;
         }
         Navigator.of(context).pop(_items);
@@ -492,7 +492,7 @@ class _MapInputPageState extends ConsumerState<MapInputPage> {
   }
 
   void _handleSelected(MapEntry<String, String> value) {
-    ref.read(selectedItemsProvider(_key).notifier).update((state) {
+    ref.read(itemsProvider(_key).notifier).update((state) {
       final newState = Set<String>.from(state)..addOrRemove(value.key);
       return newState;
     });
@@ -500,7 +500,7 @@ class _MapInputPageState extends ConsumerState<MapInputPage> {
 
   void _handleSelectAll() {
     final ids = _items.map((item) => item.key).toSet();
-    ref.read(selectedItemsProvider(_key).notifier).update((selected) {
+    ref.read(itemsProvider(_key).notifier).update((selected) {
       return selected.containsAll(ids) ? {} : ids;
     });
   }
@@ -551,12 +551,12 @@ class _MapInputPageState extends ConsumerState<MapInputPage> {
   }
 
   void _handleDelete() {
-    final selectedItems = ref.read(selectedItemsProvider(_key));
+    final selectedItems = ref.read(itemsProvider(_key));
     final newItems = _items
         .where((item) => !selectedItems.contains(item.key))
         .toList();
     _items = newItems;
-    ref.read(selectedItemsProvider(_key).notifier).value = {};
+    ref.read(itemsProvider(_key).notifier).value = {};
     setState(() {});
   }
 
@@ -609,11 +609,11 @@ class _MapInputPageState extends ConsumerState<MapInputPage> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedItems = ref.watch(selectedItemsProvider(_key));
+    final selectedItems = ref.watch(itemsProvider(_key));
     return CommonPopScope(
       onPop: (_) {
         if (selectedItems.isNotEmpty) {
-          ref.read(selectedItemsProvider(_key).notifier).value = {};
+          ref.read(itemsProvider(_key).notifier).value = {};
           return false;
         }
         Navigator.of(context).pop(Map<String, String>.fromEntries(_items));

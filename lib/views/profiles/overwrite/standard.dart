@@ -22,7 +22,7 @@ class _StandardContentState extends ConsumerState<_StandardContent> {
   }
 
   void _handleSelected(int ruleId) {
-    ref.read(selectedItemsProvider(_key).notifier).update((selectedRules) {
+    ref.read(itemsProvider(_key).notifier).update((selectedRules) {
       final newSelectedRules = Set<int>.from(selectedRules)
         ..addOrRemove(ruleId);
       return newSelectedRules;
@@ -37,7 +37,7 @@ class _StandardContentState extends ConsumerState<_StandardContent> {
             ?.map((item) => item.id)
             .toSet() ??
         {};
-    ref.read(selectedItemsProvider(_key).notifier).update((selected) {
+    ref.read(itemsProvider(_key).notifier).update((selected) {
       return selected.containsAll(ids) ? {} : ids;
     });
   }
@@ -52,11 +52,11 @@ class _StandardContentState extends ConsumerState<_StandardContent> {
     if (res != true) {
       return;
     }
-    final selectedRules = ref.read(selectedItemsProvider(_key));
+    final selectedRules = ref.read(itemsProvider(_key));
     ref
         .read(profileAddedRulesProvider(_profileId).notifier)
         .delAll(selectedRules.cast<int>());
-    ref.read(selectedItemsProvider(_key).notifier).value = {};
+    ref.read(itemsProvider(_key).notifier).value = {};
   }
 
   @override
@@ -74,11 +74,11 @@ class _StandardContentState extends ConsumerState<_StandardContent> {
     _profileId = ProfileIdProvider.of(context)!.profileId;
     final addedRules =
         ref.watch(profileAddedRulesProvider(_profileId)).value ?? [];
-    final selectedRules = ref.watch(selectedItemsProvider(_key));
+    final selectedRules = ref.watch(itemsProvider(_key));
     return CommonPopScope(
       onPop: (_) {
         if (selectedRules.isNotEmpty) {
-          ref.read(selectedItemsProvider(_key).notifier).value = {};
+          ref.read(itemsProvider(_key).notifier).value = {};
           return false;
         }
         Navigator.of(context).pop();

@@ -2679,7 +2679,7 @@ final class ProxyGroupProviderProvider
 }
 
 String _$proxyGroupProviderHash() =>
-    r'095a5f094ee2bfac3cc2c382de0c2f8e9ad5b2b7';
+    r'3d14cffb0b0316646fa78b85083e74d573e55fe9';
 
 abstract class _$ProxyGroupProvider extends $Notifier<ProxyGroup> {
   ProxyGroup build();

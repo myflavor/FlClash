@@ -37,7 +37,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
       return;
     }
     ref.read(scriptsProvider.notifier).del(id);
-    ref.read(selectedItemProvider(_key).notifier).value = null;
+    ref.read(itemProvider(_key).notifier).value = null;
     _clearEffect(id);
   }
 
@@ -47,7 +47,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   }
 
   void _handleSelected(int id) {
-    ref.read(selectedItemProvider(_key).notifier).update((value) {
+    ref.read(itemProvider(_key).notifier).update((value) {
       if (value == id) {
         return null;
       }
@@ -187,11 +187,11 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   @override
   Widget build(BuildContext context) {
     final scripts = ref.watch(scriptsProvider).value ?? [];
-    final selectedScriptId = ref.watch(selectedItemProvider(_key));
+    final selectedScriptId = ref.watch(itemProvider(_key));
     return CommonPopScope(
       onPop: (_) {
         if (selectedScriptId != null) {
-          ref.read(selectedItemProvider(_key).notifier).value = null;
+          ref.read(itemProvider(_key).notifier).value = null;
           return false;
         }
         Navigator.of(context).pop();

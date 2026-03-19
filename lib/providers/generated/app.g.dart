@@ -1511,35 +1511,34 @@ abstract class _$Loading extends $Notifier<bool> {
   }
 }
 
-@ProviderFor(SelectedItems)
-const selectedItemsProvider = SelectedItemsFamily._();
+@ProviderFor(Items)
+const itemsProvider = ItemsFamily._();
 
-final class SelectedItemsProvider
-    extends $NotifierProvider<SelectedItems, Set<dynamic>> {
-  const SelectedItemsProvider._({
-    required SelectedItemsFamily super.from,
+final class ItemsProvider extends $NotifierProvider<Items, Set<dynamic>> {
+  const ItemsProvider._({
+    required ItemsFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'selectedItemsProvider',
+         name: r'itemsProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$selectedItemsHash();
+  String debugGetCreateSourceHash() => _$itemsHash();
 
   @override
   String toString() {
-    return r'selectedItemsProvider'
+    return r'itemsProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  SelectedItems create() => SelectedItems();
+  Items create() => Items();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(Set<dynamic> value) {
@@ -1551,7 +1550,7 @@ final class SelectedItemsProvider
 
   @override
   bool operator ==(Object other) {
-    return other is SelectedItemsProvider && other.argument == argument;
+    return other is ItemsProvider && other.argument == argument;
   }
 
   @override
@@ -1560,34 +1559,33 @@ final class SelectedItemsProvider
   }
 }
 
-String _$selectedItemsHash() => r'05ef5c5584cbac90d416e5c4fe53ec9e29604020';
+String _$itemsHash() => r'e4d68c86d62dfa3ba7153954208891e4df4c4355';
 
-final class SelectedItemsFamily extends $Family
+final class ItemsFamily extends $Family
     with
         $ClassFamilyOverride<
-          SelectedItems,
+          Items,
           Set<dynamic>,
           Set<dynamic>,
           Set<dynamic>,
           String
         > {
-  const SelectedItemsFamily._()
+  const ItemsFamily._()
     : super(
         retry: null,
-        name: r'selectedItemsProvider',
+        name: r'itemsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  SelectedItemsProvider call(String key) =>
-      SelectedItemsProvider._(argument: key, from: this);
+  ItemsProvider call(String key) => ItemsProvider._(argument: key, from: this);
 
   @override
-  String toString() => r'selectedItemsProvider';
+  String toString() => r'itemsProvider';
 }
 
-abstract class _$SelectedItems extends $Notifier<Set<dynamic>> {
+abstract class _$Items extends $Notifier<Set<dynamic>> {
   late final _$args = ref.$arg as String;
   String get key => _$args;
 
@@ -1609,35 +1607,34 @@ abstract class _$SelectedItems extends $Notifier<Set<dynamic>> {
   }
 }
 
-@ProviderFor(SelectedItem)
-const selectedItemProvider = SelectedItemFamily._();
+@ProviderFor(Item)
+const itemProvider = ItemFamily._();
 
-final class SelectedItemProvider
-    extends $NotifierProvider<SelectedItem, dynamic> {
-  const SelectedItemProvider._({
-    required SelectedItemFamily super.from,
+final class ItemProvider extends $NotifierProvider<Item, dynamic> {
+  const ItemProvider._({
+    required ItemFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'selectedItemProvider',
+         name: r'itemProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$selectedItemHash();
+  String debugGetCreateSourceHash() => _$itemHash();
 
   @override
   String toString() {
-    return r'selectedItemProvider'
+    return r'itemProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  SelectedItem create() => SelectedItem();
+  Item create() => Item();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(dynamic value) {
@@ -1649,7 +1646,7 @@ final class SelectedItemProvider
 
   @override
   bool operator ==(Object other) {
-    return other is SelectedItemProvider && other.argument == argument;
+    return other is ItemProvider && other.argument == argument;
   }
 
   @override
@@ -1658,27 +1655,26 @@ final class SelectedItemProvider
   }
 }
 
-String _$selectedItemHash() => r'b50be0386d53ee8441c37d1a2a4c25640ce10766';
+String _$itemHash() => r'bd46bf2e285d7171173ed7c46455ff4c39e80a46';
 
-final class SelectedItemFamily extends $Family
-    with $ClassFamilyOverride<SelectedItem, dynamic, dynamic, dynamic, String> {
-  const SelectedItemFamily._()
+final class ItemFamily extends $Family
+    with $ClassFamilyOverride<Item, dynamic, dynamic, dynamic, String> {
+  const ItemFamily._()
     : super(
         retry: null,
-        name: r'selectedItemProvider',
+        name: r'itemProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  SelectedItemProvider call(String key) =>
-      SelectedItemProvider._(argument: key, from: this);
+  ItemProvider call(String key) => ItemProvider._(argument: key, from: this);
 
   @override
-  String toString() => r'selectedItemProvider';
+  String toString() => r'itemProvider';
 }
 
-abstract class _$SelectedItem extends $Notifier<dynamic> {
+abstract class _$Item extends $Notifier<dynamic> {
   late final _$args = ref.$arg as String;
   String get key => _$args;
 

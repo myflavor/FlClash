@@ -288,6 +288,7 @@ enum FunctionTag {
   autoScrollToEnd,
   loadedProvider,
   saveSharedFile,
+  removeProxy,
 }
 
 enum DashboardWidget {

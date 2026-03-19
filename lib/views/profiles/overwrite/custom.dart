@@ -144,7 +144,7 @@ class _CustomRulesViewState extends ConsumerState<_CustomRulesView> {
   }
 
   void _handleSelected(int ruleId) {
-    ref.read(selectedItemsProvider(_key).notifier).update((selectedRules) {
+    ref.read(itemsProvider(_key).notifier).update((selectedRules) {
       final newSelectedRules = Set<int>.from(selectedRules)
         ..addOrRemove(ruleId);
       return newSelectedRules;
@@ -159,7 +159,7 @@ class _CustomRulesViewState extends ConsumerState<_CustomRulesView> {
             ?.map((item) => item.id)
             .toSet() ??
         {};
-    ref.read(selectedItemsProvider(_key).notifier).update((selected) {
+    ref.read(itemsProvider(_key).notifier).update((selected) {
       return selected.containsAll(ids) ? {} : ids;
     });
   }
@@ -174,17 +174,17 @@ class _CustomRulesViewState extends ConsumerState<_CustomRulesView> {
     if (res != true) {
       return;
     }
-    final selectedRules = ref.read(selectedItemsProvider(_key));
+    final selectedRules = ref.read(itemsProvider(_key));
     ref
         .read(profileCustomRulesProvider(_profileId).notifier)
         .delAll(selectedRules.cast<int>());
-    ref.read(selectedItemsProvider(_key).notifier).value = {};
+    ref.read(itemsProvider(_key).notifier).value = {};
   }
 
   @override
   Widget build(context) {
     final rules = ref.watch(profileCustomRulesProvider(_profileId)).value ?? [];
-    final selectedRules = ref.watch(selectedItemsProvider(_key));
+    final selectedRules = ref.watch(itemsProvider(_key));
     return CommonScaffold(
       title: appLocalizations.rule,
       actions: [

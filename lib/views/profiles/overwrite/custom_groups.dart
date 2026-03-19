@@ -512,10 +512,35 @@ class _EditProxiesView extends ConsumerStatefulWidget {
 }
 
 class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
+  final _dismissItemController = ValueNotifier<String?>(null);
+
   void _handleToAddProxiesView() {
     Navigator.of(
       context,
     ).push(PagedSheetRoute(builder: (context) => _AddProxiesView()));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _handleRemove(String proxyName) {
+    if (_dismissItemController.value != null) {
+      return;
+    }
+    _dismissItemController.value = proxyName;
+  }
+
+  void _handleRealRemove(String proxyName) {
+    ref.read(proxyGroupProvider.notifier).update((state) {
+      final newProxies = List<String>.from(state.proxies ?? []);
+      newProxies.remove(proxyName);
+      return state.copyWith(proxies: newProxies);
+    });
+    if (mounted) {
+      _dismissItemController.value = null;
+    }
   }
 
   Widget _buildItem({
@@ -523,31 +548,59 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
     required String? proxyType,
     required int index,
     required int length,
+    required bool dismiss,
   }) {
     final position = ItemPosition.get(index, length);
-    return Container(
-      key: Key(proxyName),
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: ItemPositionProvider(
-        position: position,
-        child: DecorationListItem(
-          minVerticalPadding: 8,
-          title: Text(proxyName),
-          subtitle: Text(proxyType ?? proxyName.toLowerCase()),
-          leading: CommonMinIconButtonTheme(
-            child: IconButton.filledTonal(
-              onPressed: () {},
-              icon: Icon(Icons.remove, size: 18),
-              padding: EdgeInsets.zero,
+    return ExternalDismissible(
+      dismiss: dismiss,
+      effect: ExternalDismissibleEffect.normal,
+      key: ValueKey(proxyName),
+      onDismissed: () {
+        _handleRealRemove(proxyName);
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: ItemPositionProvider(
+          position: position,
+          child: DecorationListItem(
+            minVerticalPadding: 8,
+            title: Text(proxyName),
+            subtitle: Text(proxyType ?? proxyName.toLowerCase()),
+            leading: CommonMinIconButtonTheme(
+              child: IconButton.filledTonal(
+                onPressed: () {
+                  _handleRemove(proxyName);
+                },
+                icon: Icon(Icons.remove, size: 18),
+                padding: EdgeInsets.zero,
+              ),
             ),
-          ),
-          trailing: ReorderableDelayedDragStartListener(
-            index: index,
-            child: Icon(Icons.drag_handle),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ReorderableDelayedDragStartListener(
+                  index: index,
+                  child: Icon(Icons.drag_handle, size: 24),
+                ),
+                SizedBox(width: 12),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _handleReorder(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    ref.read(proxyGroupProvider.notifier).update((state) {
+      final nextItems = List<String>.from(state.proxies ?? []);
+      final item = nextItems.removeAt(oldIndex);
+      nextItems.insert(newIndex, item);
+      return state.copyWith(proxies: nextItems);
+    });
   }
 
   @override
@@ -608,22 +661,31 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
                 ),
               ),
             ),
-            SliverReorderableList(
-              itemBuilder: (_, index) {
-                final proxyName = proxyNames[index];
-                return _buildItem(
-                  proxyName: proxyName,
-                  proxyType: proxyTypeMap[proxyName],
-                  index: index,
-                  length: proxyNames.length,
+            ValueListenableBuilder(
+              valueListenable: _dismissItemController,
+              builder: (_, dismissItem, _) {
+                return SliverReorderableList(
+                  findChildIndexCallback: (Key key) {
+                    final String keyValue = (key as dynamic).subKey?.value;
+                    final index = proxyNames.indexOf(keyValue);
+                    return index;
+                  },
+                  itemBuilder: (_, index) {
+                    final proxyName = proxyNames[index];
+                    return _buildItem(
+                      dismiss: dismissItem == proxyName,
+                      proxyName: proxyName,
+                      proxyType: proxyTypeMap[proxyName],
+                      index: index,
+                      length: proxyNames.length,
+                    );
+                  },
+                  itemCount: proxyNames.length,
+                  onReorder: (int oldIndex, int newIndex) {
+                    _handleReorder(oldIndex, newIndex);
+                  },
                 );
               },
-              itemExtent:
-                  16 +
-                  globalState.measure.bodyMediumHeight +
-                  globalState.measure.bodyLargeHeight,
-              itemCount: proxyNames.length,
-              onReorder: (int oldIndex, int newIndex) {},
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16)),
           ],
@@ -633,40 +695,69 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView> {
   }
 }
 
-class _AddProxiesView extends ConsumerWidget {
+class _AddProxiesView extends ConsumerStatefulWidget {
   const _AddProxiesView();
 
-  Widget _buildItem({
-    required String title,
-    required String subtitle,
-    required ItemPosition position,
-    Widget? trailing,
-  }) {
-    return Container(
-      key: Key(title),
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: ItemPositionProvider(
-        position: position,
-        child: DecorationListItem(
-          minVerticalPadding: 8,
-          title: Text(title),
-          subtitle: Text(subtitle),
-          trailing: trailing,
-        ),
-      ),
-    );
+  @override
+  ConsumerState<_AddProxiesView> createState() => _AddProxiesViewState();
+}
+
+class _AddProxiesViewState extends ConsumerState<_AddProxiesView>
+    with UniqueKeyStateMixin {
+  void _handleAdd(String name) {
+    final dismissItem = ref.read(itemProvider(key));
+    if (dismissItem != null) {
+      return;
+    }
+    ref.read(itemProvider(key).notifier).value = name;
   }
 
-  void _handleAdd(WidgetRef ref, String name) {
+  void _handleRealAdd(String name) {
     ref
         .read(proxyGroupProvider.notifier)
         .update(
           (state) => state.copyWith(proxies: [...state.proxies ?? [], name]),
         );
+    ref.read(itemProvider(key).notifier).value = null;
+  }
+
+  Widget _buildItem({
+    required String title,
+    required String subtitle,
+    required ItemPosition position,
+    required bool dismiss,
+    required VoidCallback onAdd,
+    required VoidCallback onDismissed,
+  }) {
+    return ExternalDismissible(
+      key: ValueKey(title),
+      effect: ExternalDismissibleEffect.resize,
+      dismiss: dismiss,
+      onDismissed: onDismissed,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: ItemPositionProvider(
+          position: position,
+          child: DecorationListItem(
+            minVerticalPadding: 8,
+            title: Text(title),
+            subtitle: Text(subtitle),
+            trailing: CommonMinIconButtonTheme(
+              child: IconButton.filledTonal(
+                onPressed: onAdd,
+                icon: Icon(Icons.add, size: 18),
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context) {
+    final dismissItem = ref.watch(itemProvider(key));
     final isBottomSheet =
         SheetProvider.of(context)?.type == SheetType.bottomSheet;
     final profileId = ProfileIdProvider.of(context)!.profileId;
@@ -716,15 +807,13 @@ class _AddProxiesView extends ConsumerWidget {
                     title: proxyGroup.name,
                     subtitle: proxyGroup.type.value,
                     position: position,
-                    trailing: CommonMinIconButtonTheme(
-                      child: IconButton.filledTonal(
-                        onPressed: () {
-                          _handleAdd(ref, proxyGroup.name);
-                        },
-                        icon: Icon(Icons.add, size: 18),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
+                    dismiss: dismissItem == proxyGroup.name,
+                    onAdd: () {
+                      _handleAdd(proxyGroup.name);
+                    },
+                    onDismissed: () {
+                      _handleRealAdd(proxyGroup.name);
+                    },
                   );
                 }, childCount: proxyGroups.length),
               ),
@@ -745,15 +834,13 @@ class _AddProxiesView extends ConsumerWidget {
                     title: proxy.name,
                     subtitle: proxy.type,
                     position: position,
-                    trailing: CommonMinIconButtonTheme(
-                      child: IconButton.filledTonal(
-                        onPressed: () {
-                          _handleAdd(ref, proxy.name);
-                        },
-                        icon: Icon(Icons.add, size: 18),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
+                    dismiss: dismissItem == proxy.name,
+                    onAdd: () {
+                      _handleAdd(proxy.name);
+                    },
+                    onDismissed: () {
+                      _handleRealAdd(proxy.name);
+                    },
                   );
                 }, childCount: proxies.length),
               ),
