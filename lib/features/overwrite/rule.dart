@@ -33,6 +33,7 @@ class RuleItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return SelectedDecorationListItem(
       isSelected: isSelected,
+      isEditing: isEditing,
       onSelected: () {
         onSelected();
       },
