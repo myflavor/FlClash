@@ -560,34 +560,54 @@ class _EditProxiesView extends ConsumerStatefulWidget {
 
 class _EditProxiesViewState extends ConsumerState<_EditProxiesView>
     with UniqueKeyStateMixin {
+  bool _isComputing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(itemsProvider(key), (prev, next) {
+      if (!SetEquality().equals(prev, next)) {
+        _handleRealRemove();
+      }
+    });
+  }
+
   void _handleToAddProxiesView() {
     Navigator.of(
       context,
     ).push(PagedSheetRoute(builder: (context) => _AddProxiesView()));
   }
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void _handleRemove(String proxyName) {
-    final dismissItem = ref.read(itemProvider(key));
-    if (dismissItem != null) {
+    if (_isComputing) {
       return;
     }
-    ref.read(itemProvider(key).notifier).value = proxyName;
+    ref.read(itemsProvider(key).notifier).update((state) {
+      final newSet = Set.from(state);
+      newSet.add(proxyName);
+      return newSet;
+    });
   }
 
-  void _handleRealRemove(String proxyName) {
-    ref.read(proxyGroupProvider.notifier).update((state) {
-      final newProxies = List<String>.from(state.proxies ?? []);
-      newProxies.remove(proxyName);
-      return state.copyWith(proxies: newProxies);
-    });
-    if (mounted) {
-      ref.read(itemProvider(key).notifier).value = null;
-    }
+  void _handleRealRemove() {
+    debouncer.call(
+      'EditProxiesViewState_handleRealRemove',
+      () {
+        _isComputing = true;
+        if (!ref.context.mounted) {
+          return;
+        }
+        final dismissItems = ref.read(itemsProvider(key));
+        ref.read(proxyGroupProvider.notifier).update((state) {
+          final newProxies = List<String>.from(state.proxies ?? []);
+          newProxies.removeWhere((state) => dismissItems.contains(state));
+          return state.copyWith(proxies: newProxies);
+        });
+        ref.read(itemsProvider(key).notifier).update((state) => <dynamic>{});
+        _isComputing = false;
+      },
+      duration: Duration(milliseconds: 1000),
+    );
   }
 
   Widget _buildItem({
@@ -595,16 +615,13 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView>
     required String? proxyType,
     required int index,
     required int length,
+    required ItemPosition position,
     required bool dismiss,
   }) {
-    final position = ItemPosition.get(index, length);
     return ExternalDismissible(
       dismiss: dismiss,
-      effect: ExternalDismissibleEffect.normal,
       key: ValueKey(proxyName),
-      onDismissed: () {
-        _handleRealRemove(proxyName);
-      },
+      onDismissed: _handleRealRemove,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: ItemPositionProvider(
@@ -668,7 +685,7 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView>
         (state) => VM2(state.includeAllProxies ?? false, state.proxies ?? []),
       ),
     );
-    final dismissItem = ref.watch(itemProvider(key));
+    final dismissItems = ref.watch(itemsProvider(key));
     final includeAllProxies = vm2.a;
     final proxyNames = vm2.b;
     final proxyTypeMap =
@@ -730,15 +747,16 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView>
             ),
             if (proxyNames.isNotEmpty)
               SliverReorderableList(
-                findChildIndexCallback: (Key key) {
-                  final String keyValue = (key as dynamic).subKey?.value;
-                  final index = proxyNames.indexOf(keyValue);
-                  return index;
-                },
                 itemBuilder: (_, index) {
                   final proxyName = proxyNames[index];
+                  final position = ItemPosition.calculateVisualPosition(
+                    index,
+                    proxyNames,
+                    dismissItems,
+                  );
                   return _buildItem(
-                    dismiss: dismissItem == proxyName,
+                    position: position,
+                    dismiss: dismissItems.contains(proxyName),
                     proxyName: proxyName,
                     proxyType: proxyTypeMap[proxyName],
                     index: index,

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:collection/collection.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/database/database.dart';
