@@ -599,7 +599,7 @@ class _EditProxiesViewState extends ConsumerState<_EditProxiesView>
         });
         ref.read(itemsProvider(key).notifier).update((state) => <dynamic>{});
       },
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 450),
     );
   }
 
@@ -822,7 +822,7 @@ class _AddProxiesViewState extends ConsumerState<_AddProxiesView>
             .read(itemsProvider(realKey).notifier)
             .update((state) => <dynamic>{});
       },
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 350),
     );
   }
 
