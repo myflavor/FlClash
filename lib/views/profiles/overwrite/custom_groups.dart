@@ -563,12 +563,19 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
     );
   }
 
-  void _handleDelete() {}
+  void _handleDelete(int profileId, String name) {
+    ref.read(proxyGroupsProvider(profileId).notifier).del(name);
+    final popCb = SheetProvider.of(context)?.nestedNavigatorPopCallback;
+    if (popCb != null) {
+      popCb();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isBottomSheet =
         SheetProvider.of(context)?.type == SheetType.bottomSheet;
+    final profileId = ProfileIdProvider.of(context)!.profileId;
     final proxyGroup = ref.watch(proxyGroupProvider);
     return AdaptiveSheetScaffold(
       sheetTransparentToolBar: true,
@@ -628,7 +635,9 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
                       color: context.colorScheme.error,
                     ),
                   ),
-                  onPressed: _handleDelete,
+                  onPressed: () {
+                    _handleDelete(profileId, proxyGroup.name);
+                  },
                 ),
               ],
             ),

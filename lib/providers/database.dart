@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:drift/drift.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/database/database.dart';
 import 'package:fl_clash/models/models.dart';
@@ -313,6 +314,15 @@ class ProxyGroups extends _$ProxyGroups with AsyncNotifierMixin {
     AsyncValue<List<ProxyGroup>> next,
   ) {
     return !proxyGroupsEquality.equals(previous.value, next.value);
+  }
+
+  void del(String name) {
+    database.proxyGroups.remove(
+      (t) => t.profileId.equals(profileId) & t.name.equals(name),
+    );
+    List<ProxyGroup> newList = List.from(value);
+    newList = newList.where((item) => item.name != name).toList();
+    value = newList;
   }
 
   void order(int oldIndex, int newIndex) {
