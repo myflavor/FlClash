@@ -2807,6 +2807,226 @@ class ProxyGroupsCompanion extends UpdateCompanion<RawProxyGroup> {
   }
 }
 
+class $IconRecordsTable extends IconRecords
+    with TableInfo<$IconRecordsTable, IconRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $IconRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+    'url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastAccessedMeta = const VerificationMeta(
+    'lastAccessed',
+  );
+  @override
+  late final GeneratedColumn<int> lastAccessed = GeneratedColumn<int>(
+    'last_accessed',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [url, lastAccessed];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'icon_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<IconRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('url')) {
+      context.handle(
+        _urlMeta,
+        url.isAcceptableOrUnknown(data['url']!, _urlMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('last_accessed')) {
+      context.handle(
+        _lastAccessedMeta,
+        lastAccessed.isAcceptableOrUnknown(
+          data['last_accessed']!,
+          _lastAccessedMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_lastAccessedMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {url};
+  @override
+  IconRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return IconRecord(
+      url: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}url'],
+      )!,
+      lastAccessed: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_accessed'],
+      )!,
+    );
+  }
+
+  @override
+  $IconRecordsTable createAlias(String alias) {
+    return $IconRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class IconRecord extends DataClass implements Insertable<IconRecord> {
+  final String url;
+  final int lastAccessed;
+  const IconRecord({required this.url, required this.lastAccessed});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['url'] = Variable<String>(url);
+    map['last_accessed'] = Variable<int>(lastAccessed);
+    return map;
+  }
+
+  IconRecordsCompanion toCompanion(bool nullToAbsent) {
+    return IconRecordsCompanion(
+      url: Value(url),
+      lastAccessed: Value(lastAccessed),
+    );
+  }
+
+  factory IconRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return IconRecord(
+      url: serializer.fromJson<String>(json['url']),
+      lastAccessed: serializer.fromJson<int>(json['lastAccessed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'url': serializer.toJson<String>(url),
+      'lastAccessed': serializer.toJson<int>(lastAccessed),
+    };
+  }
+
+  IconRecord copyWith({String? url, int? lastAccessed}) => IconRecord(
+    url: url ?? this.url,
+    lastAccessed: lastAccessed ?? this.lastAccessed,
+  );
+  IconRecord copyWithCompanion(IconRecordsCompanion data) {
+    return IconRecord(
+      url: data.url.present ? data.url.value : this.url,
+      lastAccessed: data.lastAccessed.present
+          ? data.lastAccessed.value
+          : this.lastAccessed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IconRecord(')
+          ..write('url: $url, ')
+          ..write('lastAccessed: $lastAccessed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(url, lastAccessed);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IconRecord &&
+          other.url == this.url &&
+          other.lastAccessed == this.lastAccessed);
+}
+
+class IconRecordsCompanion extends UpdateCompanion<IconRecord> {
+  final Value<String> url;
+  final Value<int> lastAccessed;
+  final Value<int> rowid;
+  const IconRecordsCompanion({
+    this.url = const Value.absent(),
+    this.lastAccessed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  IconRecordsCompanion.insert({
+    required String url,
+    required int lastAccessed,
+    this.rowid = const Value.absent(),
+  }) : url = Value(url),
+       lastAccessed = Value(lastAccessed);
+  static Insertable<IconRecord> custom({
+    Expression<String>? url,
+    Expression<int>? lastAccessed,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (url != null) 'url': url,
+      if (lastAccessed != null) 'last_accessed': lastAccessed,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  IconRecordsCompanion copyWith({
+    Value<String>? url,
+    Value<int>? lastAccessed,
+    Value<int>? rowid,
+  }) {
+    return IconRecordsCompanion(
+      url: url ?? this.url,
+      lastAccessed: lastAccessed ?? this.lastAccessed,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (lastAccessed.present) {
+      map['last_accessed'] = Variable<int>(lastAccessed.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IconRecordsCompanion(')
+          ..write('url: $url, ')
+          ..write('lastAccessed: $lastAccessed, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(e);
   $DatabaseManager get managers => $DatabaseManager(this);
@@ -2817,6 +3037,7 @@ abstract class _$Database extends GeneratedDatabase {
     this,
   );
   late final $ProxyGroupsTable proxyGroups = $ProxyGroupsTable(this);
+  late final $IconRecordsTable iconRecords = $IconRecordsTable(this);
   late final Index idxProfileSceneOrder = Index(
     'idx_profile_scene_order',
     'CREATE INDEX idx_profile_scene_order ON profile_rule_mapping (profile_id, scene, "order")',
@@ -2825,10 +3046,15 @@ abstract class _$Database extends GeneratedDatabase {
     'idx_profile_name_order',
     'CREATE INDEX idx_profile_name_order ON proxy_groups (profile_id, name, "order")',
   );
+  late final Index lastAccessedUrl = Index(
+    'last_accessed_url',
+    'CREATE INDEX last_accessed_url ON icon_records (last_accessed, url)',
+  );
   late final ProfilesDao profilesDao = ProfilesDao(this as Database);
   late final ScriptsDao scriptsDao = ScriptsDao(this as Database);
   late final RulesDao rulesDao = RulesDao(this as Database);
   late final ProxyGroupsDao proxyGroupsDao = ProxyGroupsDao(this as Database);
+  late final IconRecordsDao iconRecordsDao = IconRecordsDao(this as Database);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2839,8 +3065,10 @@ abstract class _$Database extends GeneratedDatabase {
     rules,
     profileRuleLinks,
     proxyGroups,
+    iconRecords,
     idxProfileSceneOrder,
     idxProfileNameOrder,
+    lastAccessedUrl,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -4877,6 +5105,148 @@ typedef $$ProxyGroupsTableProcessedTableManager =
       RawProxyGroup,
       PrefetchHooks Function({bool profileId})
     >;
+typedef $$IconRecordsTableCreateCompanionBuilder =
+    IconRecordsCompanion Function({
+      required String url,
+      required int lastAccessed,
+      Value<int> rowid,
+    });
+typedef $$IconRecordsTableUpdateCompanionBuilder =
+    IconRecordsCompanion Function({
+      Value<String> url,
+      Value<int> lastAccessed,
+      Value<int> rowid,
+    });
+
+class $$IconRecordsTableFilterComposer
+    extends Composer<_$Database, $IconRecordsTable> {
+  $$IconRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get url => $composableBuilder(
+    column: $table.url,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastAccessed => $composableBuilder(
+    column: $table.lastAccessed,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$IconRecordsTableOrderingComposer
+    extends Composer<_$Database, $IconRecordsTable> {
+  $$IconRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get url => $composableBuilder(
+    column: $table.url,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastAccessed => $composableBuilder(
+    column: $table.lastAccessed,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$IconRecordsTableAnnotationComposer
+    extends Composer<_$Database, $IconRecordsTable> {
+  $$IconRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<int> get lastAccessed => $composableBuilder(
+    column: $table.lastAccessed,
+    builder: (column) => column,
+  );
+}
+
+class $$IconRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$Database,
+          $IconRecordsTable,
+          IconRecord,
+          $$IconRecordsTableFilterComposer,
+          $$IconRecordsTableOrderingComposer,
+          $$IconRecordsTableAnnotationComposer,
+          $$IconRecordsTableCreateCompanionBuilder,
+          $$IconRecordsTableUpdateCompanionBuilder,
+          (
+            IconRecord,
+            BaseReferences<_$Database, $IconRecordsTable, IconRecord>,
+          ),
+          IconRecord,
+          PrefetchHooks Function()
+        > {
+  $$IconRecordsTableTableManager(_$Database db, $IconRecordsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$IconRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$IconRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$IconRecordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> url = const Value.absent(),
+                Value<int> lastAccessed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => IconRecordsCompanion(
+                url: url,
+                lastAccessed: lastAccessed,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String url,
+                required int lastAccessed,
+                Value<int> rowid = const Value.absent(),
+              }) => IconRecordsCompanion.insert(
+                url: url,
+                lastAccessed: lastAccessed,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$IconRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$Database,
+      $IconRecordsTable,
+      IconRecord,
+      $$IconRecordsTableFilterComposer,
+      $$IconRecordsTableOrderingComposer,
+      $$IconRecordsTableAnnotationComposer,
+      $$IconRecordsTableCreateCompanionBuilder,
+      $$IconRecordsTableUpdateCompanionBuilder,
+      (IconRecord, BaseReferences<_$Database, $IconRecordsTable, IconRecord>),
+      IconRecord,
+      PrefetchHooks Function()
+    >;
 
 class $DatabaseManager {
   final _$Database _db;
@@ -4891,6 +5261,8 @@ class $DatabaseManager {
       $$ProfileRuleLinksTableTableManager(_db, _db.profileRuleLinks);
   $$ProxyGroupsTableTableManager get proxyGroups =>
       $$ProxyGroupsTableTableManager(_db, _db.proxyGroups);
+  $$IconRecordsTableTableManager get iconRecords =>
+      $$IconRecordsTableTableManager(_db, _db.iconRecords);
 }
 
 mixin _$ProfilesDaoMixin on DatabaseAccessor<Database> {
@@ -4908,4 +5280,7 @@ mixin _$RulesDaoMixin on DatabaseAccessor<Database> {
 mixin _$ProxyGroupsDaoMixin on DatabaseAccessor<Database> {
   $ProfilesTable get profiles => attachedDatabase.profiles;
   $ProxyGroupsTable get proxyGroups => attachedDatabase.proxyGroups;
+}
+mixin _$IconRecordsDaoMixin on DatabaseAccessor<Database> {
+  $IconRecordsTable get iconRecords => attachedDatabase.iconRecords;
 }

@@ -12,14 +12,22 @@ import 'package:fl_clash/models/models.dart';
 part 'converter.dart';
 part 'generated/database.g.dart';
 part 'groups.dart';
+part 'icons.dart';
 part 'links.dart';
 part 'profiles.dart';
 part 'rules.dart';
 part 'scripts.dart';
 
 @DriftDatabase(
-  tables: [Profiles, Scripts, Rules, ProfileRuleLinks, ProxyGroups],
-  daos: [ProfilesDao, ScriptsDao, RulesDao, ProxyGroupsDao],
+  tables: [
+    Profiles,
+    Scripts,
+    Rules,
+    ProfileRuleLinks,
+    ProxyGroups,
+    IconRecords,
+  ],
+  daos: [ProfilesDao, ScriptsDao, RulesDao, ProxyGroupsDao, IconRecordsDao],
 )
 class Database extends _$Database {
   Database([QueryExecutor? executor]) : super(executor ?? _openConnection());
@@ -40,6 +48,7 @@ class Database extends _$Database {
       onUpgrade: (m, from, to) async {
         if (from < 2) {
           await m.createTable(proxyGroups);
+          await m.createTable(iconRecords);
           await _resetOrders();
         }
       },
