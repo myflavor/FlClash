@@ -208,12 +208,15 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
   }
 
   Future<void> _showIconEdit(String? icon) async {
-    final value = await globalState.showCommonDialog<GroupType>(
-      child: _IconEditDialog(),
+    final value = await globalState.showCommonDialog<String>(
+      child: _IconEditDialog(icon),
     );
     if (value == null) {
       return;
     }
+    ref
+        .read(proxyGroupProvider.notifier)
+        .update((state) => state.copyWith(icon: value));
   }
 
   Widget _buildItem({
@@ -487,8 +490,10 @@ class _EditProxyGroupViewState extends ConsumerState<_EditProxyGroupView> {
       },
       trailing: Text(
         icon ?? '可选',
+        maxLines: 1,
         style: context.textTheme.bodyLarge?.copyWith(
           color: icon == null ? context.colorScheme.onSurfaceVariant : null,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
@@ -1069,7 +1074,7 @@ class _AddProxiesViewState extends ConsumerState<_AddProxiesView>
 class _IconEditDialog extends StatefulWidget {
   final String? value;
 
-  const _IconEditDialog({this.value});
+  const _IconEditDialog(this.value);
 
   @override
   State<_IconEditDialog> createState() => _IconEditDialogState();
@@ -1079,13 +1084,13 @@ class _IconEditDialogState extends State<_IconEditDialog>
     with TickerProviderStateMixin {
   late final TextEditingController _srcController;
   StreamSubscription? _streamSubscription;
-  late final _ImageAnimatedValueNotifier<File?> _imageNotifier;
+  late final _IconEditDialogStateNotifier<File?> _state;
 
   @override
   void initState() {
     super.initState();
     _srcController = TextEditingController(text: widget.value);
-    _imageNotifier = _ImageAnimatedValueNotifier<File?>(
+    _state = _IconEditDialogStateNotifier<File?>(
       vsync: this,
       duration: commonDuration * 2,
     );
@@ -1103,23 +1108,27 @@ class _IconEditDialogState extends State<_IconEditDialog>
   void _getImageFormCache() {
     final text = _srcController.text;
     _streamSubscription?.cancel();
-    _imageNotifier.setValue(null);
+    _state.setValue(null);
     if (text.isEmpty) return;
     _streamSubscription = DefaultCacheManager().getFileStream(text).listen((
       data,
     ) {
       if (mounted && data is FileInfo) {
-        _imageNotifier.setValue(data.file);
+        _state.setValue(data.file);
       }
     });
   }
 
   @override
   void dispose() {
-    _imageNotifier.dispose();
+    _state.dispose();
     _streamSubscription?.cancel();
     _srcController.dispose();
     super.dispose();
+  }
+
+  void _handleSave() {
+    context.safePop(_srcController.text);
   }
 
   @override
@@ -1132,7 +1141,7 @@ class _IconEditDialogState extends State<_IconEditDialog>
           onPressed: context.safePop,
           child: Text(appLocalizations.cancel),
         ),
-        TextButton(onPressed: () {}, child: Text(appLocalizations.save)),
+        TextButton(onPressed: _handleSave, child: Text(appLocalizations.save)),
       ],
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -1143,26 +1152,26 @@ class _IconEditDialogState extends State<_IconEditDialog>
               mainAxisSize: MainAxisSize.max,
               children: [
                 ListenableBuilder(
-                  listenable: _imageNotifier,
+                  listenable: _state,
                   builder: (_, __) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Align(
-                          widthFactor: _imageNotifier.layoutFactor,
+                          widthFactor: _state.layoutFactor,
                           alignment: Alignment.centerLeft,
                           child: Opacity(
-                            opacity: _imageNotifier.opacity.clamp(0, 1.0),
+                            opacity: _state.opacity.clamp(0, 1.0),
                             child: Transform.scale(
-                              scale: 0.5 + (0.5 * _imageNotifier.scale),
+                              scale: 0.5 + (0.5 * _state.scale),
                               child: SizedBox.square(
                                 dimension: dimension,
-                                child: _imageNotifier.value != null
+                                child: _state.value != null
                                     ? CommonCard(
                                         padding: EdgeInsets.all(6),
                                         child: CommonImage(
                                           isSvg: _srcController.text.isSvg,
-                                          data: _imageNotifier.value!,
+                                          data: _state.value!,
                                         ),
                                       )
                                     : null,
@@ -1170,7 +1179,7 @@ class _IconEditDialogState extends State<_IconEditDialog>
                             ),
                           ),
                         ),
-                        SizedBox(width: 12 * _imageNotifier.layoutFactor),
+                        SizedBox(width: 12 * _state.layoutFactor),
                       ],
                     );
                   },
@@ -1201,8 +1210,8 @@ class _IconEditDialogState extends State<_IconEditDialog>
   }
 }
 
-class _ImageAnimatedValueNotifier<T> extends ChangeNotifier {
-  _ImageAnimatedValueNotifier({
+class _IconEditDialogStateNotifier<T> extends ChangeNotifier {
+  _IconEditDialogStateNotifier({
     required TickerProvider vsync,
     required Duration duration,
     T? initialValue,
