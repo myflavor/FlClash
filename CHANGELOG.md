@@ -1,3 +1,15 @@
+## v0.8.93
+
+- 修复proxiesWithProviders
+
+- 更新mihomo内核
+
+- 移除firebase依赖，移除telegram和Fdroid上传
+
+- (cherry picked from commit 5bf09a1dbd9e4649cfd4b162037784507789f17f)
+
+- (cherry picked from commit 016e10c066ba0a6ab85aa07b7767a7f71b6725ae)
+
 ## v0.8.92
 
 - Add sqlite store
