@@ -1,3 +1,7 @@
+## v1.19.24
+
+- update mihomo v1.19.24
+
 ## v0.8.93
 
 - 修复proxiesWithProviders
