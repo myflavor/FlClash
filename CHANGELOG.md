@@ -1,3 +1,13 @@
+## v1.19.25
+
+- update mihomo v1.19.25
+
+- pure
+
+- pure
+
+- Update release template links to new repository
+
 ## v1.19.24
 
 - update mihomo v1.19.24
