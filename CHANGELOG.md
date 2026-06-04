@@ -1,3 +1,11 @@
+## v1.19.26
+
+- update mihomo v1.19.26
+
+- update mihomo v1.19.26
+
+- update submodule to myself
+
 ## v1.19.25
 
 - update mihomo v1.19.25
