@@ -1,3 +1,9 @@
+## v1.19.27
+
+- fix bug
+
+- update mihomo v1.19.27
+
 ## v1.19.26
 
 - update mihomo v1.19.26
