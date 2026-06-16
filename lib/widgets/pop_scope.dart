@@ -55,17 +55,13 @@ class _SystemBackBlockState extends State<SystemBackBlock> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      appController.backBlock();
-    });
+    appController.backBlock();
   }
 
   @override
   void dispose() {
+    appController.unBackBlock();
     super.dispose();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      appController.unBackBlock();
-    });
   }
 
   @override
