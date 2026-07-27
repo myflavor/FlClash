@@ -282,6 +282,10 @@ class _CommonPopupMenuItemsState extends State<_CommonPopupMenuItems> {
           ? () {
               if (item.subItems.isEmpty) {
                 Navigator.of(context).pop();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  onPressed();
+                });
+                return;
               }
               onPressed();
             }
