@@ -854,8 +854,8 @@ extension SystemControllerExt on AppController {
     }
   }
 
-  Future<void> handleBackOrExit() async {
-    if (_ref.read(backBlockProvider)) {
+  Future<void> handleBackOrExit({BackExitSource source = BackExitSource.back}) async {
+    if (source == BackExitSource.back && _ref.read(backBlockProvider)) {
       return;
     }
     if (_ref.read(appSettingProvider).minimizeOnExit) {

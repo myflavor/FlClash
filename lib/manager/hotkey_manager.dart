@@ -78,7 +78,9 @@ class _HotKeyManagerState extends ConsumerState<HotKeyManager> {
       child: Actions(
         actions: {
           CloseWindowIntent: CallbackAction<CloseWindowIntent>(
-            onInvoke: (_) => appController.handleBackOrExit(),
+            onInvoke: (_) => appController.handleBackOrExit(
+              source: BackExitSource.close,
+            ),
           ),
           DoNothingIntent: CallbackAction<DoNothingIntent>(
             onInvoke: (_) => null,
