@@ -1,3 +1,9 @@
+## v1.19.29
+
+- fix: prevent input focus from blocking top-right close action
+
+- update mihomo v1.19.29
+
 ## v1.19.28
 
 - update mihomo v1.19.28
