@@ -1,3 +1,7 @@
+## v1.19.32
+
+- update mihomo v1.19.32
+
 ## v1.19.31
 
 - update mihomo v1.19.31
