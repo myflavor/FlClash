@@ -169,7 +169,7 @@
   "geodataLoaderDesc": "Enabling will use the Geo low memory loader",
   "requests": "Requests",
   "requestsDesc": "View recently request records",
-  "findProcessMode": "Find process",
+  "findProcessMode": "Always find process",
   "init": "Init",
   "infiniteTime": "Long term effective",
   "expirationTime": "Expiration time",

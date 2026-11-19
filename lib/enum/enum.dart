@@ -131,7 +131,7 @@ enum CoreEventType { log, delay, request, loaded, crash }
 
 enum InvokeMessageType { protect, process }
 
-enum FindProcessMode { always, off }
+enum FindProcessMode { always, strict }
 
 enum RestoreOption { all, onlyProfiles }
 

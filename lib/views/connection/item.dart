@@ -1,8 +1,6 @@
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/plugins/app.dart';
-import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -39,13 +37,9 @@ class TrackerInfoItem extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, ref) {
-    final value = ref.watch(
-      patchClashConfigProvider.select(
-        (state) =>
-            state.findProcessMode == FindProcessMode.always && system.isAndroid,
-      ),
-    );
+  Widget build(BuildContext context, WidgetRef _) {
+    final value =
+        system.isAndroid && trackerInfo.metadata.process.isNotEmpty;
     final title = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

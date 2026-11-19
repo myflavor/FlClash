@@ -169,7 +169,7 @@
   "geodataLoaderDesc": "有効化するとGeo低メモリローダーを使用",
   "requests": "リクエスト",
   "requestsDesc": "最近のリクエスト記録を表示",
-  "findProcessMode": "プロセス検出",
+  "findProcessMode": "常にプロセスを検出",
   "init": "初期化",
   "infiniteTime": "長期有効",
   "expirationTime": "有効期限",

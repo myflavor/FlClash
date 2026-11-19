@@ -1324,10 +1324,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Find process`
+  /// `Always find process`
   String get findProcessMode {
     return Intl.message(
-      'Find process',
+      'Always find process',
       name: 'findProcessMode',
       desc: '',
       args: [],

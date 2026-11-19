@@ -362,7 +362,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "filterSystemApp": MessageLookupByLibrary.simpleMessage(
       "Filter system app",
     ),
-    "findProcessMode": MessageLookupByLibrary.simpleMessage("Find process"),
+    "findProcessMode": MessageLookupByLibrary.simpleMessage(
+      "Always find process",
+    ),
     "findProcessModeDesc": MessageLookupByLibrary.simpleMessage(
       "There is a certain performance loss after opening",
     ),

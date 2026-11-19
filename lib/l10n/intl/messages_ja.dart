@@ -273,7 +273,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "ファイルが変更されました。保存しますか？",
     ),
     "filterSystemApp": MessageLookupByLibrary.simpleMessage("システムアプリを除外"),
-    "findProcessMode": MessageLookupByLibrary.simpleMessage("プロセス検出"),
+    "findProcessMode": MessageLookupByLibrary.simpleMessage("常にプロセスを検出"),
     "findProcessModeDesc": MessageLookupByLibrary.simpleMessage(
       "有効化するとパフォーマンスが若干低下します",
     ),

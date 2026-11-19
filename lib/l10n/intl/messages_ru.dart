@@ -376,7 +376,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Фильтровать системные приложения",
     ),
     "findProcessMode": MessageLookupByLibrary.simpleMessage(
-      "Режим поиска процесса",
+      "Всегда искать процесс",
     ),
     "findProcessModeDesc": MessageLookupByLibrary.simpleMessage(
       "При включении возможны небольшие потери производительности",

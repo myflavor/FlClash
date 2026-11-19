@@ -347,7 +347,7 @@ class FindProcessItem extends ConsumerWidget {
                 (state) => state.copyWith(
                   findProcessMode: value
                       ? FindProcessMode.always
-                      : FindProcessMode.off,
+                      : FindProcessMode.strict,
                 ),
               );
         },

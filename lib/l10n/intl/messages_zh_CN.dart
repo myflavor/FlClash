@@ -247,7 +247,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "fileDesc": MessageLookupByLibrary.simpleMessage("直接上传配置文件"),
     "fileIsUpdate": MessageLookupByLibrary.simpleMessage("文件有修改，是否保存修改"),
     "filterSystemApp": MessageLookupByLibrary.simpleMessage("过滤系统应用"),
-    "findProcessMode": MessageLookupByLibrary.simpleMessage("查找进程"),
+    "findProcessMode": MessageLookupByLibrary.simpleMessage("始终查找进程"),
     "findProcessModeDesc": MessageLookupByLibrary.simpleMessage("开启后会有一定性能损耗"),
     "fontFamily": MessageLookupByLibrary.simpleMessage("字体"),
     "forceRestartCoreTip": MessageLookupByLibrary.simpleMessage("您确定要强制重启核心吗？"),
