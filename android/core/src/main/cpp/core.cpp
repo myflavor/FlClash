@@ -66,12 +66,6 @@ Java_com_follow_clash_core_Core_getTotalTraffic(JNIEnv *env, jobject thiz,
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_follow_clash_core_Core_suspended(JNIEnv *env, jobject thiz, jboolean suspended) {
-    suspend(suspended);
-}
-
-extern "C"
-JNIEXPORT void JNICALL
 Java_com_follow_clash_core_Core_quickSetup(JNIEnv *env, jobject thiz, jstring init_params_string,
                                            jstring setup_params_string, jobject cb) {
     const auto interface = new_global(cb);
@@ -193,11 +187,6 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_follow_clash_core_Core_getTotalTraffic(JNIEnv *env, jobject thiz,
                                                 const jboolean only_statistics_proxy) {
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_follow_clash_core_Core_suspended(JNIEnv *env, jobject thiz, jboolean suspended) {
 }
 
 extern "C"

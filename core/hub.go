@@ -423,15 +423,6 @@ func handleSideLoadExternalProvider(providerName string, data []byte, fn func(va
 	}()
 }
 
-func handleSuspend(suspended bool) bool {
-	if suspended {
-		tunnel.OnSuspend()
-	} else {
-		tunnel.OnRunning()
-	}
-	return true
-}
-
 func handleStartLog() {
 	if logSubscriber != nil {
 		log.UnSubscribe(logSubscriber)
