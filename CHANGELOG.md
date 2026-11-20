@@ -1,3 +1,21 @@
+## v1.19.34
+
+- reset outbounds on network change
+
+- default tun stack to mips
+
+- find processes on demand by default
+
+- stop suspending core in doze
+
+- support all rule actions
+
+- ci: pin JDK 21 for android builds
+
+- support mips tun stack
+
+- update mihomo v1.19.34
+
 ## v1.19.33
 
 - update mihomo v1.19.33
