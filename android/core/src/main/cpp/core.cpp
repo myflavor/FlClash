@@ -34,6 +34,12 @@ Java_com_follow_clash_core_Core_updateDNS(JNIEnv *env, jobject thiz, jstring dns
 
 extern "C"
 JNIEXPORT void JNICALL
+Java_com_follow_clash_core_Core_resetNetwork(JNIEnv *env, jobject thiz) {
+    resetNetwork();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
 Java_com_follow_clash_core_Core_invokeAction(JNIEnv *env, jobject thiz, jstring data, jobject cb) {
     const auto interface = new_global(cb);
     invokeAction(interface, get_string(data));
@@ -171,6 +177,11 @@ Java_com_follow_clash_core_Core_forceGC(JNIEnv *env, jobject thiz) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_follow_clash_core_Core_updateDNS(JNIEnv *env, jobject thiz, jstring dns) {
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_follow_clash_core_Core_resetNetwork(JNIEnv *env, jobject thiz) {
 }
 
 extern "C"

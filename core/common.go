@@ -152,6 +152,17 @@ func proxiesWithProviders() map[string]C.Proxy {
 	return allProxies
 }
 
+func forEachProxy(fn func(C.Proxy)) {
+	for _, proxy := range tunnel.Proxies() {
+		fn(proxy)
+	}
+	for _, p := range tunnel.Providers() {
+		for _, proxy := range p.Proxies() {
+			fn(proxy)
+		}
+	}
+}
+
 func patchSelectGroup(mapping map[string]string) {
 	for name, proxy := range proxiesWithProviders() {
 		outbound, ok := proxy.(*adapter.Proxy)

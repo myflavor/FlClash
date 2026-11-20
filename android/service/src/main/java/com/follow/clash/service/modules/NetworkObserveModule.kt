@@ -28,7 +28,6 @@ class NetworkObserveModule(private val service: Service) : Module() {
     private val connectivity by lazy {
         service.getSystemService<ConnectivityManager>()
     }
-    private var preDnsList = listOf<String>()
 
     private val request = NetworkRequest.Builder().apply {
         addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
@@ -95,14 +94,32 @@ class NetworkObserveModule(private val service: Service) : Module() {
         } + (if (entry.value.isAvailable()) 0 else 10)
     }
 
+    @Synchronized
     fun onUpdateNetwork() {
-        val dnsList = (networkInfos.asSequence().minByOrNull { networkToInt(it) }?.value?.dnsList
-            ?: emptyList()).map { x -> x.asSocketAddressText(53) }
-        if (dnsList == preDnsList) {
+        val entry = networkInfos.asSequence().minByOrNull { networkToInt(it) }
+        updateNetwork(entry?.key)
+        updateDns(entry?.value)
+    }
+
+    private var network: Network? = null
+
+    private fun updateNetwork(value: Network?) {
+        if (value == network) {
             return
         }
-        preDnsList = dnsList
-        Core.updateDNS(dnsList.toSet().joinToString(","))
+        network = value
+        Core.resetNetwork()
+    }
+
+    private var dnsList = listOf<String>()
+
+    private fun updateDns(networkInfo: NetworkInfo?) {
+        val value = networkInfo?.dnsList.orEmpty().map { it.asSocketAddressText(53) }
+        if (value == dnsList) {
+            return
+        }
+        dnsList = value
+        Core.updateDNS(value.toSet().joinToString(","))
     }
 
     fun setUnderlyingNetworks(network: Network) {

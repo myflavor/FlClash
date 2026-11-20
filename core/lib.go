@@ -128,6 +128,7 @@ var (
 	tunLock    sync.Mutex
 	errBlocked = errors.New("blocked")
 	tunHandler *TunHandler
+	dnsLock    sync.Mutex
 )
 
 func handleStopTun() {
@@ -153,6 +154,8 @@ func handleStartTun(callback unsafe.Pointer, fd int, stack, address, dns string)
 
 func handleUpdateDns(value string) {
 	go func() {
+		dnsLock.Lock()
+		defer dnsLock.Unlock()
 		log.Infoln("[DNS] updateDns %s", value)
 		dns.UpdateSystemDNS(strings.Split(value, ","))
 		dns.FlushCacheWithDefaultResolver()
@@ -274,4 +277,9 @@ func forceGC() {
 //export updateDns
 func updateDns(s *C.char) {
 	handleUpdateDns(takeCString(s))
+}
+
+//export resetNetwork
+func resetNetwork() {
+	handleResetNetwork()
 }
